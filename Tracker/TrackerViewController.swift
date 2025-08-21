@@ -28,8 +28,16 @@ final class TrackerViewController: UIViewController {
     @objc func addTapped() {
     }
     
+    @objc func pickedDate(_ sender: UIDatePicker) {
+    }
+    
     override func viewDidLoad() {
         view.backgroundColor = .background
+        
+        let datePicker = UIDatePicker()
+        datePicker.preferredDatePickerStyle = .compact
+        datePicker.datePickerMode = .date
+        datePicker.addTarget(self, action: #selector(pickedDate(_:)), for: .valueChanged)
         
         navigationItem.title = "Трекеры"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -41,9 +49,10 @@ final class TrackerViewController: UIViewController {
             action: #selector(addTapped)
         )
         navigationItem.leftBarButtonItem?.tintColor = .text
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        collectionView.register(TrackerViewCell.self, forCellWithReuseIdentifier: TrackerViewCell.identifier)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -69,35 +78,28 @@ final class TrackerViewController: UIViewController {
 
 extension TrackerViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 15
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
-        cell.contentView.backgroundColor = .red
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: TrackerViewCell.identifier,
+            for: indexPath) as? TrackerViewCell else {
+            return UICollectionViewCell()
+        }
+        
+        cell.configure(with: Tracker(id: UUID(), title: "Test", color: .green, emoji: "", weekdays: [.friday,.saturday]), isDone: true)
+        
         return cell
     }
 }
 
 extension TrackerViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        var id: String = ""
-        
-        switch kind {
-        case UICollectionView.elementKindSectionHeader:
-            id = "header"
-        case UICollectionView.elementKindSectionFooter:
-            id = "footer"
-        default:
-            id = ""
-        }
-        
-        let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as! UICollectionReusableView
-        return view
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 0
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let param = GeometricParams(cellCount: 2, leftInset: 16, rightInset: 16, cellSpacing: 9)
+        let availableWidth = collectionView.frame.width - param.paddingWidth
+        let cellWidth = availableWidth / CGFloat(param.cellCount)
+        return CGSize(width: cellWidth, height: cellWidth * 0.8)
     }
 }
 
