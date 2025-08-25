@@ -10,6 +10,8 @@ import UIKit
 final class TrackerSectionHeader: UICollectionReusableView {
     let label = UILabel()
     
+    static let identifier = "TrackerSectionHeader"
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         

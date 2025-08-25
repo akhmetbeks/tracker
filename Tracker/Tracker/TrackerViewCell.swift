@@ -54,9 +54,9 @@ final class TrackerViewCell: UICollectionViewCell {
         let titleLabel = UILabel()
         titleLabel.text = tracker.title
         titleLabel.font = .ypMedium
+        titleLabel.textColor = .white
         titleLabel.numberOfLines = 2
         titleLabel.lineBreakMode = .byWordWrapping
-        titleLabel.textColor = .text
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         countLabel.font = .ypMedium

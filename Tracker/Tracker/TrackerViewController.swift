@@ -10,14 +10,14 @@ import UIKit
 final class TrackerViewController: UIViewController {
     private var categories: [TrackerCategory] = [
         TrackerCategory(title: "Домашний уют", trackers: [
-            Tracker(id: 1, title: "Поливать растения", color: .ybColor3, emoji: "", weekdays: [.friday, .wednesday]),
-            Tracker(id: 3, title: "Test 3", color: .ybColor2, emoji: "", weekdays: [.friday,.saturday]),
+            Tracker(id: UUID(), title: "Поливать растения", color: .ybColor3, emoji: "", weekdays: [.friday, .wednesday]),
+            Tracker(id: UUID(), title: "Test 3", color: .ybColor2, emoji: "", weekdays: [.friday,.saturday]),
         ]),
         TrackerCategory(title: "Радостные мелочи", trackers: [
-            Tracker(id: 2, title: "Кошка заслонила камеру на созвоне", color: .ybColor6, emoji: "", weekdays: [.monday,.thursday]),
-            Tracker(id: 4, title: "Бабушка прислала открытку в вотсапе", color: .ybColor1, emoji: "", weekdays: [.monday,.wednesday]),
-            Tracker(id: 7, title: "Test 7", color: .ybColor8, emoji: "", weekdays: [.saturday,.sunday]),
-            Tracker(id: 5, title: "Test 5", color: .ybColor16, emoji: "", weekdays: [.friday])
+            Tracker(id: UUID(), title: "Кошка заслонила камеру на созвоне", color: .ybColor6, emoji: "", weekdays: [.monday,.thursday]),
+            Tracker(id: UUID(), title: "Бабушка прислала открытку в вотсапе", color: .ybColor1, emoji: "", weekdays: [.monday,.wednesday]),
+            Tracker(id: UUID(), title: "Test 7", color: .ybColor8, emoji: "", weekdays: [.saturday,.sunday]),
+            Tracker(id: UUID(), title: "Test 5", color: .ybColor16, emoji: "", weekdays: [.friday])
         ])
     ]
     
@@ -28,33 +28,16 @@ final class TrackerViewController: UIViewController {
     private var collectionView: UICollectionView?
     private var selectedDate: Date? {
         didSet {
-            guard let selectedDate else { return }
-            let weekday = Calendar.current.component(.weekday, from: selectedDate)
-            let selectedWeekday = WeekdaysEnum.allCases[weekday - 1]
-            filteredCategories = categories.compactMap({
-                let filteredTrackers = $0.trackers.filter({
-                    $0.weekdays.contains(selectedWeekday)
-                })
-                
-                if filteredTrackers.isEmpty { return nil }
-                
-                return TrackerCategory(title: $0.title, trackers: filteredTrackers)
-            })
+            filterCategories()
             
             showCollectionView = !filteredCategories.isEmpty
             
-            if showCollectionView {
-                collectionView?.reloadData()
-            }
+            if showCollectionView { collectionView?.reloadData() }
         }
     }
     
     private var showCollectionView: Bool = false {
         didSet {
-            if collectionView?.isHidden == true && showCollectionView == false {
-                return
-            }
-            
             starImage.isHidden = showCollectionView
             emptyTasksLabel.isHidden = showCollectionView
             collectionView?.isHidden = !showCollectionView
@@ -64,6 +47,7 @@ final class TrackerViewController: UIViewController {
     private let cellParam = GeometricParams(cellCount: 2, leftInset: 16, rightInset: 16, cellSpacing: 9)
     
     private let stackView = UIStackView()
+    private let searchBar = UISearchBar()
     
     private let starImage: UIImageView = {
         let image = UIImageView(image: UIImage(resource: .star))
@@ -96,16 +80,20 @@ final class TrackerViewController: UIViewController {
             image: UIImage(systemName: "plus"),
             style: .plain,
             target: self,
-            action: #selector(addTapped)
+            action: #selector(addTrackerTapped)
         )
         navigationItem.leftBarButtonItem?.tintColor = .text
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
+        
+        searchBar.placeholder = "Поиск"
+        searchBar.searchBarStyle = .minimal
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
         
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         
         guard let collectionView else { return }
         collectionView.register(TrackerViewCell.self, forCellWithReuseIdentifier: TrackerViewCell.identifier)
-        collectionView.register(TrackerSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
+        collectionView.register(TrackerSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: TrackerSectionHeader.identifier)
         collectionView.backgroundColor = .ybBlack
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -116,6 +104,7 @@ final class TrackerViewController: UIViewController {
         
         stackView.addSubview(starImage)
         stackView.addSubview(emptyTasksLabel)
+        stackView.addSubview(searchBar)
         stackView.addSubview(collectionView)
         
         view.addSubview(stackView)
@@ -125,8 +114,26 @@ final class TrackerViewController: UIViewController {
         selectedDate = Date()
     }
        
-    @objc func addTapped() {
-        let vc = CreateTrackerViewController()
+    @objc func addTrackerTapped() {
+        let vc = TrackerAddViewController()
+        
+        vc.onTrackerAdded = { [weak self] item in
+            guard let tracker = item.trackers.first, let self else { return }
+            
+            if let index = self.categories.firstIndex(where: { $0.title == item.title }) {
+                let category = self.categories[index]
+                var newTrackers = category.trackers
+                
+                newTrackers.append(tracker)
+                
+                self.categories[index] = TrackerCategory(title: category.title, trackers: newTrackers)
+            } else {
+                self.categories.append(item)
+            }
+            
+            self.filterCategories()
+            self.collectionView?.reloadData()
+        }
         vc.modalPresentationStyle = .pageSheet
         present(UINavigationController(rootViewController: vc), animated: true)
     }
@@ -135,9 +142,30 @@ final class TrackerViewController: UIViewController {
         selectedDate = sender.date
     }
     
+    private func filterCategories() {
+        guard let selectedDate else { return }
+        let selectedWeekday = getWeekday(for: selectedDate)
+        filteredCategories = categories.compactMap({
+            let filteredTrackers = $0.trackers.filter({ $0.weekdays.contains(selectedWeekday) })
+            
+            if filteredTrackers.isEmpty { return nil }
+            
+            return TrackerCategory(title: $0.title, trackers: filteredTrackers)
+        })
+    }
+    
+    private func getWeekday(for date: Date) -> WeekdaysEnum {
+        let weekday = Calendar.current.component(.weekday, from: date)
+        return WeekdaysEnum.allCases[weekday - 1]
+    }
+    
     private func configureConstraints() {
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            searchBar.heightAnchor.constraint(equalToConstant: 36),
+            stackView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
@@ -175,9 +203,8 @@ extension TrackerViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         var id = ""
-        if kind == UICollectionView.elementKindSectionHeader {
-                id = "header"
-        }
+        
+        if kind == UICollectionView.elementKindSectionHeader { id = TrackerSectionHeader.identifier }
         
         guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as? TrackerSectionHeader else {
             return UICollectionReusableView()

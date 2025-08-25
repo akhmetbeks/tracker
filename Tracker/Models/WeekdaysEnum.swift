@@ -5,12 +5,12 @@
 //  Created by Sultan Akhmetbek on 21.08.2025.
 //
 
-enum WeekdaysEnum: CaseIterable {
-    case sunday;
-    case monday;
-    case tuesday;
-    case wednesday;
-    case thursday;
-    case friday;
-    case saturday;
+enum WeekdaysEnum: String, CaseIterable {
+    case sunday = "Воскресенье"
+    case monday = "Понедельник"
+    case tuesday = "Вторник"
+    case wednesday = "Среда"
+    case thursday = "Четверг"
+    case friday = "Пятница"
+    case saturday = "Суббота"
 }
