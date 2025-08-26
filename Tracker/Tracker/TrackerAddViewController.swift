@@ -50,7 +50,7 @@ final class TrackerAddViewController: UIViewController {
         let vc = CreateTrackerViewController()
         vc.onTrackerAdded = { [weak self] tracker in
             self?.onTrackerAdded?(tracker)
-            self?.dismiss(animated: true)
+//            self?.dismiss(animated: true)
         }
         vc.showSchedule = !isIrregular
         

@@ -7,30 +7,17 @@
 
 import UIKit
 
+protocol TrackerCellDelegate: AnyObject {
+    func didTapComplete(for tracker: Tracker)
+}
+
 final class TrackerViewCell: UICollectionViewCell {
-    private var records: [TrackerRecord] = []
-    
     private let button = UIButton(type: .system)
     private let countLabel = UILabel()
     
-    private var isDone = false {
-        didSet {
-            let image = UIImage(resource: isDone ? .check : .plus)
-            button.setImage(image, for: .normal)
-            
-            let count = records.filter { $0.id == tracker?.id }.count
-            countLabel.text = "\(count) дней"
-        }
-    }
-    
-    var tracker: Tracker?
-    var selectedDate = Date() {
-        didSet {
-            records = records.filter { $0.date == selectedDate }
-        }
-    }
-    
     static let identifier = "TrackerViewCell"
+    private var tracker: Tracker?
+    weak var delegate: TrackerCellDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -43,10 +30,10 @@ final class TrackerViewCell: UICollectionViewCell {
         super.init(coder: coder)
     }
     
-    func configure() {
+    func configure(with tracker: Tracker, isCompleted: Bool, count: Int) {
+        self.tracker = tracker
         let containerView = UIView()
         
-        guard let tracker else { return }
         containerView.backgroundColor = tracker.color
         containerView.layer.cornerRadius = 16
         containerView.translatesAutoresizingMaskIntoConstraints = false
@@ -59,15 +46,16 @@ final class TrackerViewCell: UICollectionViewCell {
         titleLabel.lineBreakMode = .byWordWrapping
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
+        countLabel.text = "\(count) дней"
         countLabel.font = .ypMedium
         countLabel.textColor = .text
         countLabel.translatesAutoresizingMaskIntoConstraints = false
         
+        let image = UIImage(resource: isCompleted ? .check : .plus)
+        button.setImage(image, for: .normal)
         button.addTarget(self, action: #selector(toggleDone), for: .touchUpInside)
         button.tintColor = tracker.color
         button.translatesAutoresizingMaskIntoConstraints = false
-        
-        isDone = records.contains(where: { $0.id == tracker.id })
         
         contentView.addSubview(containerView)
         contentView.addSubview(countLabel)
@@ -96,17 +84,6 @@ final class TrackerViewCell: UICollectionViewCell {
     
     @objc private func toggleDone() {
         guard let tracker else { return }
-        
-        if isDone {
-            if records.isEmpty == false {
-                records.removeLast()
-                isDone = false
-            }
-        } else {
-            if selectedDate <= Date() {
-                records.append(TrackerRecord(id: tracker.id, date: selectedDate))
-                isDone = true
-            }
-        }
+        delegate?.didTapComplete(for: tracker)
     }
 }

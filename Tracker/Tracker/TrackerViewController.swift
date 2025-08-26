@@ -20,9 +20,8 @@ final class TrackerViewController: UIViewController {
             Tracker(id: UUID(), title: "Test 5", color: .ybColor16, emoji: "", weekdays: [.friday])
         ])
     ]
-    
+    private var completedTrackers: [TrackerRecord] = []
     private var filteredCategories: [TrackerCategory] = []
-    
     private var emptyViewContraints: [NSLayoutConstraint] = []
     private var collectionViewContraints: [NSLayoutConstraint] = []
     private var collectionView: UICollectionView?
@@ -152,6 +151,8 @@ final class TrackerViewController: UIViewController {
             
             return TrackerCategory(title: $0.title, trackers: filteredTrackers)
         })
+        
+        showCollectionView = !filteredCategories.isEmpty
     }
     
     private func getWeekday(for date: Date) -> WeekdaysEnum {
@@ -190,6 +191,10 @@ final class TrackerViewController: UIViewController {
         NSLayoutConstraint.activate(emptyViewContraints)
         NSLayoutConstraint.activate(collectionViewContraints)
     }
+    
+    private func isTrackerCompleted(_ tracker: Tracker) -> Bool {
+        return completedTrackers.contains(where: { $0.id == tracker.id })
+    }
 }
 
 extension TrackerViewController: UICollectionViewDataSource {
@@ -221,9 +226,10 @@ extension TrackerViewController: UICollectionViewDataSource {
         
         let tracker = filteredCategories[indexPath.section].trackers[indexPath.item]
         
-        cell.tracker = tracker
-        cell.selectedDate = selectedDate ?? Date()
-        cell.configure()
+        let isCompleted = isTrackerCompleted(tracker)
+        let count = completedTrackers.count(where: { $0.id == tracker.id })
+        cell.delegate = self
+        cell.configure(with: tracker, isCompleted: isCompleted, count: count)
         
         return cell
     }
@@ -242,5 +248,20 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return cellParam.cellSpacing
+    }
+}
+
+extension TrackerViewController: TrackerCellDelegate {
+    func didTapComplete(for tracker: Tracker) {
+        if isTrackerCompleted(tracker) {
+            let index = completedTrackers.firstIndex(where: { $0.id == tracker.id })
+            guard let index else { return }
+            completedTrackers.remove(at: index)
+        } else {
+            guard let selectedDate else { return }
+            completedTrackers.append(TrackerRecord(id: tracker.id, date: selectedDate))
+        }
+        
+        collectionView?.reloadData()
     }
 }
