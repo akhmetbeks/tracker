@@ -22,7 +22,7 @@ final class TrackerViewController: UIViewController {
     ]
     private var completedTrackers: [TrackerRecord] = []
     private var filteredCategories: [TrackerCategory] = []
-    private var emptyViewContraints: [NSLayoutConstraint] = []
+    private var emptyViewConstraints: [NSLayoutConstraint] = []
     private var collectionViewContraints: [NSLayoutConstraint] = []
     private var collectionView: UICollectionView?
     private var selectedDate: Date? {
@@ -113,7 +113,7 @@ final class TrackerViewController: UIViewController {
         selectedDate = Date()
     }
        
-    @objc func addTrackerTapped() {
+    @objc private func addTrackerTapped() {
         let vc = TrackerAddViewController()
         
         vc.onTrackerAdded = { [weak self] item in
@@ -137,7 +137,7 @@ final class TrackerViewController: UIViewController {
         present(UINavigationController(rootViewController: vc), animated: true)
     }
     
-    @objc func pickedDate(_ sender: UIDatePicker) {
+    @objc private func pickedDate(_ sender: UIDatePicker) {
         selectedDate = sender.date
     }
     
@@ -172,7 +172,7 @@ final class TrackerViewController: UIViewController {
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
         
-        emptyViewContraints = [
+        emptyViewConstraints = [
             starImage.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
             starImage.centerYAnchor.constraint(equalTo: stackView.centerYAnchor),
             emptyTasksLabel.topAnchor.constraint(equalTo: starImage.bottomAnchor, constant: 8),
@@ -188,22 +188,22 @@ final class TrackerViewController: UIViewController {
             collectionView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -cellParam.rightInset)
         ]
         
-        NSLayoutConstraint.activate(emptyViewContraints)
+        NSLayoutConstraint.activate(emptyViewConstraints)
         NSLayoutConstraint.activate(collectionViewContraints)
     }
     
     private func isTrackerCompleted(_ tracker: Tracker) -> Bool {
-        return completedTrackers.contains(where: { $0.id == tracker.id })
+        completedTrackers.contains(where: { $0.id == tracker.id })
     }
 }
 
 extension TrackerViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return filteredCategories.count
+        filteredCategories.count
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return filteredCategories[section].trackers.count
+        filteredCategories[section].trackers.count
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -243,11 +243,11 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: collectionView.bounds.width, height: 50)
+        CGSize(width: collectionView.bounds.width, height: 50)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return cellParam.cellSpacing
+        cellParam.cellSpacing
     }
 }
 

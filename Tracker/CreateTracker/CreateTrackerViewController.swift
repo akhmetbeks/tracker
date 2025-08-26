@@ -20,8 +20,8 @@ final class CreateTrackerViewController: UIViewController {
     private let buttonsTableView = UITableView(frame: .zero, style: .plain)
     private let buttonTitles = ["Категория", "Расписание"]
     
-    var trackerCategory: TrackerCategory?
-    var trackerWeekdays: [WeekdaysEnum] = []
+    private var trackerCategory: TrackerCategory?
+    private var trackerWeekdays: [WeekdaysEnum] = []
     var onTrackerAdded: ((TrackerCategory) -> Void)?
     var showSchedule = false
     
@@ -155,7 +155,7 @@ final class CreateTrackerViewController: UIViewController {
     }
     
     @objc private func saveTapped() {
-        if trackerWeekdays.isEmpty == true && showSchedule {
+        if trackerWeekdays.isEmpty && showSchedule {
             showAlertError(message: "Нужно выбрать хотя бы один день недели")
             return
         }
