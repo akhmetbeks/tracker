@@ -8,6 +8,7 @@
 import UIKit
 
 final class TrackerViewController: UIViewController {
+   
     private var categories: [TrackerCategory] = [
         TrackerCategory(title: "Домашний уют", trackers: [
             Tracker(id: UUID(), title: "Поливать растения", color: .ybColor3, emoji: "", weekdays: [.friday, .wednesday]),
