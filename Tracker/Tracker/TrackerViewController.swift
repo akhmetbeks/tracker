@@ -194,7 +194,10 @@ final class TrackerViewController: UIViewController {
     }
     
     private func isTrackerCompleted(_ tracker: Tracker) -> Bool {
-        completedTrackers.contains(where: { $0.id == tracker.id })
+        guard let selectedDate else { return false }
+        return completedTrackers.contains(where: {
+            $0.id == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: selectedDate)
+        })
     }
 }
 
