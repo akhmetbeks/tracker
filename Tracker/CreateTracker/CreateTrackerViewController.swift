@@ -170,7 +170,7 @@ final class CreateTrackerViewController: UIViewController {
             title: title,
             color: .ybColor10,
             emoji: "",
-            weekdays: showSchedule ? trackerWeekdays : Array(WeekdaysEnum.allCases),
+            weekdays: showSchedule ? trackerWeekdays : Array(WeekdaysEnum.allCases)
         )
         
         let category = TrackerCategory(title: "Домашний уют", trackers: [tracker])
