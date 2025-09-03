@@ -12,13 +12,12 @@ final class CreateTrackerViewController: UIViewController {
     private let titleTextField = UITextField()
     private let clearButton = UIButton()
     private let errorLabel = UILabel()
-    
     private let cancelButton = UIButton()
     private let saveButton = TrackerButton(title: "Сохранить")
     private let buttonStackView = UIStackView()
-    
     private let buttonsTableView = UITableView(frame: .zero, style: .plain)
     private let buttonTitles = ["Категория", "Расписание"]
+    private let emojiCollectionView = EmojiCollectionView()
     
     private var trackerCategory: TrackerCategory?
     private var trackerWeekdays: [WeekdaysEnum] = []
@@ -100,6 +99,7 @@ final class CreateTrackerViewController: UIViewController {
         view.addSubview(errorLabel)
         view.addSubview(buttonsTableView)
         view.addSubview(buttonStackView)
+        view.addSubview(emojiCollectionView)
         
         setupLayout()
     }
@@ -127,7 +127,11 @@ final class CreateTrackerViewController: UIViewController {
             buttonsTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             buttonsTableView.heightAnchor.constraint(equalToConstant: showSchedule ? 150 : 75),
             
-            cancelButton.heightAnchor.constraint(equalToConstant: 60),
+            emojiCollectionView.topAnchor.constraint(equalTo: buttonsTableView.bottomAnchor, constant: 24),
+            emojiCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            emojiCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            emojiCollectionView.heightAnchor.constraint(equalToConstant: 200),
+            
             buttonStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
             buttonStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             buttonStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
