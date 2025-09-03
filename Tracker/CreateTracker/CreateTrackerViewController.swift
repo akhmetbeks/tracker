@@ -7,7 +7,14 @@
 
 import UIKit
 
+protocol CreateTrackerDelegate: AnyObject {
+    func setEmoji(value: String)
+    func setColor(value: UIColor)
+}
+
 final class CreateTrackerViewController: UIViewController {
+    private let contentView = UIView()
+    private let scrollView = UIScrollView()
     private let containerView = UIView()
     private let titleTextField = UITextField()
     private let clearButton = UIButton()
@@ -17,10 +24,15 @@ final class CreateTrackerViewController: UIViewController {
     private let buttonStackView = UIStackView()
     private let buttonsTableView = UITableView(frame: .zero, style: .plain)
     private let buttonTitles = ["Категория", "Расписание"]
+    private let emojiLabel = UILabel()
     private let emojiCollectionView = EmojiCollectionView()
+    private let colorLabel = UILabel()
+    private let colorCollectionView = ColorCollectionView()
     
     private var trackerCategory: TrackerCategory?
     private var trackerWeekdays: [WeekdaysEnum] = []
+    private var selectedEmoji: String?
+    private var selectedColor: UIColor?
     var onTrackerAdded: ((TrackerCategory) -> Void)?
     var showSchedule = false
     
@@ -43,6 +55,13 @@ final class CreateTrackerViewController: UIViewController {
     override func viewDidLoad() {
         view.backgroundColor = .ybBlack
         navigationItem.title = "Новая привычка"
+        
+        emojiCollectionView.delegate = self
+        colorCollectionView.delegate = self
+        
+        scrollView.showsVerticalScrollIndicator = true
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.translatesAutoresizingMaskIntoConstraints = false
         
         containerView.backgroundColor = .background
         containerView.layer.cornerRadius = 16
@@ -90,16 +109,30 @@ final class CreateTrackerViewController: UIViewController {
         buttonStackView.axis = .horizontal
         buttonStackView.distribution = .fillEqually
         buttonStackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        emojiLabel.text = "Emoji"
+        emojiLabel.translatesAutoresizingMaskIntoConstraints = false
+        emojiLabel.font = .systemFont(ofSize: 19, weight: .bold)
+        
+        colorLabel.text = "Цвет"
+        colorLabel.translatesAutoresizingMaskIntoConstraints = false
+        colorLabel.font = .systemFont(ofSize: 19, weight: .bold)
 
         containerView.addSubview(titleTextField)
         containerView.addSubview(clearButton)
         buttonStackView.addArrangedSubview(cancelButton)
         buttonStackView.addArrangedSubview(saveButton)
-        view.addSubview(containerView)
-        view.addSubview(errorLabel)
-        view.addSubview(buttonsTableView)
+        contentView.addSubview(containerView)
+        contentView.addSubview(errorLabel)
+        contentView.addSubview(buttonsTableView)
+        contentView.addSubview(emojiLabel)
+        contentView.addSubview(emojiCollectionView)
+        contentView.addSubview(colorLabel)
+        contentView.addSubview(colorCollectionView)
+        
+        scrollView.addSubview(contentView)
+        view.addSubview(scrollView)
         view.addSubview(buttonStackView)
-        view.addSubview(emojiCollectionView)
         
         setupLayout()
     }
@@ -107,36 +140,62 @@ final class CreateTrackerViewController: UIViewController {
     // MARK: setupLayout
     private func setupLayout() {
         NSLayoutConstraint.activate([
-            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
-            containerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            containerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            scrollView.bottomAnchor.constraint(equalTo: buttonStackView.topAnchor, constant: -16),
+
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+
+            colorCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -32),
+
+            buttonStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            buttonStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            buttonStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            buttonStackView.heightAnchor.constraint(equalToConstant: 60),
+
+            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
+            containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             containerView.heightAnchor.constraint(equalToConstant: 75),
-            
+
             titleTextField.topAnchor.constraint(equalTo: containerView.topAnchor),
             titleTextField.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
             titleTextField.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
             titleTextField.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -41),
             clearButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
             clearButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
-            
-            errorLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+
+            errorLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             errorLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 8),
-            
+
             buttonsTableView.topAnchor.constraint(equalTo: errorLabel.bottomAnchor, constant: 24),
-            buttonsTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            buttonsTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            buttonsTableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            buttonsTableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             buttonsTableView.heightAnchor.constraint(equalToConstant: showSchedule ? 150 : 75),
-            
-            emojiCollectionView.topAnchor.constraint(equalTo: buttonsTableView.bottomAnchor, constant: 24),
-            emojiCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            emojiCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            emojiCollectionView.heightAnchor.constraint(equalToConstant: 200),
-            
-            buttonStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            buttonStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            buttonStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            buttonStackView.heightAnchor.constraint(equalToConstant: 60),
-        ])
+
+            emojiLabel.topAnchor.constraint(equalTo: buttonsTableView.bottomAnchor, constant: 32),
+            emojiLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            emojiLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+
+            emojiCollectionView.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor),
+            emojiCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            emojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            emojiCollectionView.heightAnchor.constraint(equalToConstant: 230),
+
+            colorLabel.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor),
+            colorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            colorLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+
+            colorCollectionView.topAnchor.constraint(equalTo: colorLabel.bottomAnchor),
+            colorCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            colorCollectionView.heightAnchor.constraint(equalToConstant: 230)
+       ])
     }
     
     @objc private func limitLength(_ textField: UITextField) {
@@ -159,6 +218,16 @@ final class CreateTrackerViewController: UIViewController {
     }
     
     @objc private func saveTapped() {
+        guard let emoji = selectedEmoji else {
+            showAlertError(message: "Выберите emoji")
+            return
+        }
+        
+        guard let color = selectedColor else {
+            showAlertError(message: "Выберите цвет")
+            return
+        }
+        
         if trackerWeekdays.isEmpty && showSchedule {
             showAlertError(message: "Нужно выбрать хотя бы один день недели")
             return
@@ -172,8 +241,8 @@ final class CreateTrackerViewController: UIViewController {
         let tracker = Tracker(
             id: UUID(),
             title: title,
-            color: .ybColor10,
-            emoji: "",
+            color: color,
+            emoji: emoji,
             weekdays: showSchedule ? trackerWeekdays : Array(WeekdaysEnum.allCases)
         )
         
@@ -209,6 +278,15 @@ final class CreateTrackerViewController: UIViewController {
     }
 }
 
+extension CreateTrackerViewController: CreateTrackerDelegate {
+    func setEmoji(value: String) {
+        selectedEmoji = value
+    }
+    
+    func setColor(value: UIColor) {
+        selectedColor = value
+    }
+}
 
 extension CreateTrackerViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

@@ -24,12 +24,22 @@ final class EmojiCollectionViewCell: UICollectionViewCell {
     
     private func configureConstraints() {
         NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            label.topAnchor.constraint(equalTo: contentView.topAnchor),
+            label.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            label.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            label.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
     
     func setup(with emoji: String, isActive: Bool) {
         label.text = emoji
+        label.textAlignment = .center
+        if isActive {
+            label.backgroundColor = .ybLightGrey
+            label.layer.cornerRadius = 16
+            label.layer.masksToBounds = true
+        } else {
+            label.backgroundColor = .clear
+        }
     }
 }

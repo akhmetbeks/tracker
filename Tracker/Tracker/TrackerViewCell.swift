@@ -46,6 +46,14 @@ final class TrackerViewCell: UICollectionViewCell {
         titleLabel.lineBreakMode = .byWordWrapping
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
+        let emojiLabel = UILabel()
+        emojiLabel.text = tracker.emoji
+        emojiLabel.textAlignment = .center
+        emojiLabel.backgroundColor = .white.withAlphaComponent(0.3)
+        emojiLabel.layer.cornerRadius = 12
+        emojiLabel.layer.masksToBounds = true
+        emojiLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         countLabel.text = "\(count) дней"
         countLabel.font = .ypMedium
         countLabel.textColor = .text
@@ -60,6 +68,7 @@ final class TrackerViewCell: UICollectionViewCell {
         contentView.addSubview(containerView)
         contentView.addSubview(countLabel)
         contentView.addSubview(button)
+        containerView.addSubview(emojiLabel)
         containerView.addSubview(titleLabel)
         
         NSLayoutConstraint.activate([
@@ -68,6 +77,12 @@ final class TrackerViewCell: UICollectionViewCell {
             containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
             containerView.bottomAnchor.constraint(equalTo: countLabel.topAnchor, constant: -16),
 
+            emojiLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
+            emojiLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 12),
+            emojiLabel.widthAnchor.constraint(equalToConstant: 24),
+            emojiLabel.heightAnchor.constraint(equalToConstant: 24),
+            
+            titleLabel.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor, constant: 8),
             titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
             titleLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -12),
             titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),

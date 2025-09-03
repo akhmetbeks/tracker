@@ -1,18 +1,20 @@
 //
-//  EmojiCollectionView.swift
+//  ColorCollectionView.swift
 //  Tracker
 //
-//  Created by Sultan Akhmetbek on 02.09.2025.
+//  Created by Sultan Akhmetbek on 03.09.2025.
 //
 
 import UIKit
 
-final class EmojiCollectionView: UIView {
+final class ColorCollectionView: UIView {
     private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    private let emojiList = ["🐶", "🦄", "🍎", "🍿", "🥦", "🎮",
-                     "🥎", "🥊", "🥋", "🎱", "📚", "📱",
-                     "🛀🏻", "🏄🏻‍♂️", "🏀", "🏊🏻‍♀️", "♟️", "🔮"]
-    private var selectedEmoji: String?
+    private let colorList: [UIColor] = [
+        .ybColor1, .ybColor2, .ybColor3, .ybColor4, .ybColor5, .ybColor6,
+        .ybColor7, .ybColor8, .ybColor9, .ybColor10,.ybColor11, .ybColor12,
+        .ybColor13, .ybColor14,.ybColor15, .ybColor16,.ybColor17, .ybColor18]
+    
+    private var selectedColor: UIColor?
     
     var delegate: CreateTrackerDelegate?
     
@@ -21,7 +23,7 @@ final class EmojiCollectionView: UIView {
         backgroundColor = .ybBlack
         translatesAutoresizingMaskIntoConstraints = false
         
-        collectionView.register(EmojiCollectionViewCell.self, forCellWithReuseIdentifier: EmojiCollectionViewCell.identifier)
+        collectionView.register(ColorCollectionViewCell.self, forCellWithReuseIdentifier: ColorCollectionViewCell.identifier)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.delegate = self
         collectionView.dataSource = self
@@ -44,7 +46,7 @@ final class EmojiCollectionView: UIView {
     }
 }
 
-extension EmojiCollectionView: UICollectionViewDelegateFlowLayout {
+extension ColorCollectionView: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let itemsPerRow: CGFloat = 6
         let padding: CGFloat = 16 * 2
@@ -63,26 +65,27 @@ extension EmojiCollectionView: UICollectionViewDelegateFlowLayout {
     }
 }
 
-extension EmojiCollectionView: UICollectionViewDataSource {
+extension ColorCollectionView: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        emojiList.count
+        colorList.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EmojiCollectionViewCell.identifier, for: indexPath) as? EmojiCollectionViewCell else {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ColorCollectionViewCell.identifier, for: indexPath) as? ColorCollectionViewCell else {
             return UICollectionViewCell()
         }
         
-        let emoji = emojiList[indexPath.row]
+        let color = colorList[indexPath.row]
         
-        cell.setup(with: emoji, isActive: emoji == selectedEmoji)
+        cell.setup(with: color, isActive: color == selectedColor)
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        selectedEmoji = emojiList[indexPath.row]
-        if let selectedEmoji {
-            delegate?.setEmoji(value: selectedEmoji)
+        selectedColor = colorList[indexPath.row]
+        
+        if let selectedColor {
+            delegate?.setColor(value: selectedColor)
             collectionView.reloadData()
         }
     }
