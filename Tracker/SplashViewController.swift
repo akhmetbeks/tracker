@@ -8,6 +8,10 @@
 import UIKit
 
 final class SplashViewController: UIViewController {
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     private let logo: UIImageView = {
         let logo = UIImageView(image: UIImage(resource: .logo))
         logo.translatesAutoresizingMaskIntoConstraints = false
