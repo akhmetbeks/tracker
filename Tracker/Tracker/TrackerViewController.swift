@@ -257,12 +257,12 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
 
 extension TrackerViewController: TrackerCellDelegate {
     func didTapComplete(for tracker: Tracker) {
+        guard let selectedDate, selectedDate <= Date() else { return }
         if isTrackerCompleted(tracker) {
             let index = completedTrackers.firstIndex(where: { $0.id == tracker.id })
             guard let index else { return }
             completedTrackers.remove(at: index)
         } else {
-            guard let selectedDate else { return }
             completedTrackers.append(TrackerRecord(id: tracker.id, date: selectedDate))
         }
         

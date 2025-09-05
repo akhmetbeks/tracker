@@ -16,7 +16,7 @@ final class ColorCollectionViewCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        view.backgroundColor = .white
+        view.backgroundColor = .clear
         view.layer.cornerRadius = 12
         innerView.layer.cornerRadius = 8
         view.translatesAutoresizingMaskIntoConstraints = false
