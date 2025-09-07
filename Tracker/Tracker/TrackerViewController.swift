@@ -8,19 +8,8 @@
 import UIKit
 
 final class TrackerViewController: UIViewController {
-   
-    private var categories: [TrackerCategory] = [
-        TrackerCategory(title: "Домашний уют", trackers: [
-            Tracker(id: UUID(), title: "Поливать растения", color: .ybColor3, emoji: "", weekdays: [.friday, .wednesday]),
-            Tracker(id: UUID(), title: "Test 3", color: .ybColor2, emoji: "", weekdays: [.friday,.saturday]),
-        ]),
-        TrackerCategory(title: "Радостные мелочи", trackers: [
-            Tracker(id: UUID(), title: "Кошка заслонила камеру на созвоне", color: .ybColor6, emoji: "", weekdays: [.monday,.thursday]),
-            Tracker(id: UUID(), title: "Бабушка прислала открытку в вотсапе", color: .ybColor1, emoji: "", weekdays: [.monday,.wednesday]),
-            Tracker(id: UUID(), title: "Test 7", color: .ybColor8, emoji: "", weekdays: [.saturday,.sunday]),
-            Tracker(id: UUID(), title: "Test 5", color: .ybColor16, emoji: "", weekdays: [.friday])
-        ])
-    ]
+    private let store = TrackerCategoryStore()
+    private var categories: [TrackerCategory] = []
     private var completedTrackers: [TrackerRecord] = []
     private var filteredCategories: [TrackerCategory] = []
     private var emptyViewConstraints: [NSLayoutConstraint] = []
@@ -66,6 +55,9 @@ final class TrackerViewController: UIViewController {
     
     override func viewDidLoad() {
         view.backgroundColor = .ybBlack
+        
+        store.delegate = self
+        store.fetchCategories()
         
         let datePicker = UIDatePicker()
         datePicker.date = selectedDate ?? Date()
@@ -118,21 +110,20 @@ final class TrackerViewController: UIViewController {
         let vc = TrackerAddViewController()
         
         vc.onTrackerAdded = { [weak self] item in
-            guard let tracker = item.trackers.first, let self else { return }
+            guard let self, let tracker = item.trackers.first else { return }
             
-            if let index = self.categories.firstIndex(where: { $0.title == item.title }) {
-                let category = self.categories[index]
-                var newTrackers = category.trackers
-                
-                newTrackers.append(tracker)
-                
-                self.categories[index] = TrackerCategory(title: category.title, trackers: newTrackers)
-            } else {
-                self.categories.append(item)
+            do {
+                if self.categories.contains(where: { $0.title == item.title }) {
+                    try self.store.addTracker(tracker, to: item.title)
+                } else {
+                    try self.store.addCategory(item)
+                }
+            } catch {
+                print("Ошибка при создании привычки: \(error.localizedDescription)")
             }
             
-            self.filterCategories()
-            self.collectionView?.reloadData()
+//            self.filterCategories()
+//            self.collectionView?.reloadData()
         }
         vc.modalPresentationStyle = .pageSheet
         present(UINavigationController(rootViewController: vc), animated: true)
@@ -266,6 +257,20 @@ extension TrackerViewController: TrackerCellDelegate {
             completedTrackers.append(TrackerRecord(id: tracker.id, date: selectedDate))
         }
         
+        collectionView?.reloadData()
+    }
+}
+
+extension TrackerViewController: TrackerCategoryStoreDelegate {
+    func didInsertSections(_ sections: IndexSet) {
+        collectionView?.performBatchUpdates {
+            collectionView?.insertSections(sections)
+        }
+    }
+    
+    func didUpdateCategories(_ items: [TrackerCategory]) {
+        self.categories = items
+        filterCategories()
         collectionView?.reloadData()
     }
 }
