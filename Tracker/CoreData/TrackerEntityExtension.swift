@@ -19,7 +19,7 @@ extension TrackerCategoryCoreData {
 
 extension TrackerCoreData {
     func toModel() -> Tracker? {
-        guard let id = self.id,
+        guard let id = self.uuid,
               let title = self.title,
               let colorHex = self.colorHex,
               let emoji = self.emoji else { return nil }
@@ -51,7 +51,7 @@ extension TrackerCoreData {
 
 extension TrackerRecordCoreData {
     func toModel() -> TrackerRecord? {
-        guard let id = tracker?.id, let date = date else { return nil }
+        guard let id = tracker?.uuid, let date = date else { return nil }
         return TrackerRecord(id: id, date: date)
     }
 }

@@ -195,7 +195,7 @@ final class TrackerViewController: UIViewController {
     }
     
     private func toggleCompletion(at indexPath: IndexPath) {
-        guard let selectedDate else { return }
+        guard let selectedDate, selectedDate <= Date() else { return }
         let tracker = filteredCategories[indexPath.section].trackers[indexPath.item]
         if recordStore.hasRecord(for: tracker.id, on: selectedDate) {
             try? recordStore.removeRecord(for: tracker.id, on: selectedDate)

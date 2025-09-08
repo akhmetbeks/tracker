@@ -26,11 +26,9 @@ final class TrackerRecordStore: NSObject {
     
     func getCount(for trackerID: UUID) -> Int {
         let request = TrackerRecordCoreData.fetchRequest()
-//        request.predicate = NSPredicate(format: "%K.%K == %@",
-//            #keyPath(TrackerRecordCoreData.tracker), #keyPath(TrackerCoreData.id), trackerID as CVarArg)
-//        return (try? context.count(for: request)) ?? 0
-        
-        return 0
+        request.predicate = NSPredicate(format: "%K.%K == %@",
+            #keyPath(TrackerRecordCoreData.tracker), #keyPath(TrackerCoreData.uuid), trackerID as CVarArg)
+        return (try? context.count(for: request)) ?? 0
     }
     
     func hasRecord(for trackerID: UUID, on date: Date) -> Bool {
@@ -43,17 +41,15 @@ final class TrackerRecordStore: NSObject {
         let request = TrackerRecordCoreData.fetchRequest()
         request.resultType = .countResultType
         
-//        request.predicate = NSPredicate(
-//            format: "%K.%K == %@ AND %K BETWEEN {%@, %@}",
-//            #keyPath(TrackerRecordCoreData.tracker), #keyPath(TrackerCoreData.id), trackerID as CVarArg,
-//            #keyPath(TrackerRecordCoreData.date), startOfDay as CVarArg, endOfDay as CVarArg
-//        )
-//
-//        let count = (try? context.count(for: request)) ?? 0
-//        
-//        return count > 0
+        request.predicate = NSPredicate(
+            format: "%K.%K == %@ AND %K BETWEEN {%@, %@}",
+            #keyPath(TrackerRecordCoreData.tracker), #keyPath(TrackerCoreData.uuid), trackerID as CVarArg,
+            #keyPath(TrackerRecordCoreData.date), startOfDay as CVarArg, endOfDay as CVarArg
+        )
+
+        let count = (try? context.count(for: request)) ?? 0
         
-        return false
+        return count > 0
     }
     
     func addRecord(_ record: TrackerRecord) throws {
@@ -61,7 +57,7 @@ final class TrackerRecordStore: NSObject {
         entity.date = record.date
         
         let request = TrackerCoreData.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %@", record.id as CVarArg)
+        request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCoreData.uuid), record.id as CVarArg)
         
         if let trackerEntity = try context.fetch(request).first {
             entity.tracker = trackerEntity
@@ -77,8 +73,8 @@ final class TrackerRecordStore: NSObject {
         
         let request = TrackerRecordCoreData.fetchRequest()
         request.predicate = NSPredicate(
-            format: "%K == %@ AND %K >= %@ AND %K < %@",
-            #keyPath(TrackerRecordCoreData.tracker), trackerID as CVarArg,
+            format: "%K.%K == %@ AND %K >= %@ AND %K < %@",
+            #keyPath(TrackerRecordCoreData.tracker), #keyPath(TrackerCoreData.uuid), trackerID as CVarArg,
             #keyPath(TrackerRecordCoreData.date), startOfDay as CVarArg,
             #keyPath(TrackerRecordCoreData.date), endOfDay as CVarArg
         )

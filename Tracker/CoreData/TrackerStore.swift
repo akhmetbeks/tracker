@@ -24,7 +24,7 @@ final class TrackerStore: NSObject {
     
     func addTracker(_ tracker: Tracker, to categoryTitle: String) throws {
         let request = TrackerCategoryCoreData.fetchRequest()
-        request.predicate = NSPredicate(format: "title == %@", categoryTitle)
+        request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), categoryTitle)
         
         guard let categoryEntity = try context.fetch(request).first else { return }
         
@@ -38,7 +38,7 @@ final class TrackerStore: NSObject {
     
     private func getTrackerCoreData(_ tracker: Tracker, for category: TrackerCategoryCoreData) -> TrackerCoreData {
         let trackerEntity = TrackerCoreData(context: context)
-        trackerEntity.id = tracker.id
+        trackerEntity.uuid = tracker.id
         trackerEntity.title = tracker.title
         trackerEntity.colorHex = tracker.hexString()
         trackerEntity.emoji = tracker.emoji

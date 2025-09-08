@@ -57,7 +57,7 @@ final class TrackerCategoryStore: NSObject {
     
     private func getTrackerCoreData(_ tracker: Tracker, for category: TrackerCategoryCoreData) -> TrackerCoreData {
         let trackerEntity = TrackerCoreData(context: context)
-        trackerEntity.id = tracker.id
+        trackerEntity.uuid = tracker.id
         trackerEntity.title = tracker.title
         trackerEntity.colorHex = tracker.hexString()
         trackerEntity.emoji = tracker.emoji
