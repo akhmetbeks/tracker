@@ -12,7 +12,9 @@ final class TrackerPersistentCoordinator {
     static let shared = TrackerPersistentCoordinator()
     
     private let container: NSPersistentContainer
-    let context: NSManagedObjectContext
+    var context: NSManagedObjectContext {
+        container.viewContext
+    }
     
     init() {
         container = NSPersistentContainer(name: "TrackerModel")
@@ -21,18 +23,5 @@ final class TrackerPersistentCoordinator {
                 fatalError("Ошибка при загрузке хранилища: \(error)")
             }
         }
-        
-        context = container.newBackgroundContext()
-    }
-    
-    private func cleanUpReferencesToPersistentStores() {
-        context.performAndWait {
-            let coordinator = self.container.persistentStoreCoordinator
-            try? coordinator.persistentStores.forEach(coordinator.remove)
-        }
-    }
-    
-    deinit {
-        cleanUpReferencesToPersistentStores()
     }
 }

@@ -11,7 +11,11 @@ final class TabBarController: UITabBarController {
     override func awakeFromNib() {
         super.awakeFromNib()
            
-        let trackerController = TrackerViewController()
+        let trackerController = TrackerViewController(
+            categoryStore: TrackerCategoryStore(),
+            trackerStore: TrackerStore(),
+            recordStore: TrackerRecordStore())
+        
         trackerController.tabBarItem = UITabBarItem(title: "Трекеры", image: UIImage(resource: .tracker), tag: 0)
         
         let statsController = UIViewController()

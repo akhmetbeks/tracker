@@ -7,17 +7,12 @@
 
 import UIKit
 
-protocol TrackerCellDelegate: AnyObject {
-    func didTapComplete(for tracker: Tracker)
-}
-
 final class TrackerViewCell: UICollectionViewCell {
     private let button = UIButton(type: .system)
     private let countLabel = UILabel()
     
     static let identifier = "TrackerViewCell"
     private var tracker: Tracker?
-    weak var delegate: TrackerCellDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -61,7 +56,6 @@ final class TrackerViewCell: UICollectionViewCell {
         
         let image = UIImage(resource: isCompleted ? .check : .plus)
         button.setImage(image, for: .normal)
-        button.addTarget(self, action: #selector(toggleDone), for: .touchUpInside)
         button.tintColor = tracker.color
         button.translatesAutoresizingMaskIntoConstraints = false
         
@@ -95,10 +89,5 @@ final class TrackerViewCell: UICollectionViewCell {
             button.widthAnchor.constraint(equalToConstant: 34),
             button.heightAnchor.constraint(equalToConstant: 34)
         ])
-    }
-    
-    @objc private func toggleDone() {
-        guard let tracker else { return }
-        delegate?.didTapComplete(for: tracker)
     }
 }

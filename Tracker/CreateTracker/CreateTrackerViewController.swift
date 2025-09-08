@@ -137,7 +137,7 @@ final class CreateTrackerViewController: UIViewController {
         setupLayout()
     }
     
-    // MARK: setupLayout
+    // MARK: - Layout
     private func setupLayout() {
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),

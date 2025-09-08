@@ -8,14 +8,11 @@
 import CoreData
 
 protocol TrackerCategoryStoreDelegate: AnyObject {
-    func didUpdateCategories(_ items: [TrackerCategory])
     func didInsertSections(_ sections: IndexSet)
 }
 
 final class TrackerCategoryStore: NSObject {
-    private let context: NSManagedObjectContext
-    private var insertedIndexes: [IndexPath]?
-    
+    private let context: NSManagedObjectContext    
     weak var delegate: TrackerCategoryStoreDelegate?
     
     private lazy var controller: NSFetchedResultsController<TrackerCategoryCoreData> = {
@@ -25,7 +22,7 @@ final class TrackerCategoryStore: NSObject {
         let controller = NSFetchedResultsController(
             fetchRequest: fetchRequest,
             managedObjectContext: context,
-            sectionNameKeyPath: nil,
+            sectionNameKeyPath: "title",
             cacheName: nil)
         
         controller.delegate = self
@@ -40,12 +37,9 @@ final class TrackerCategoryStore: NSObject {
         super.init()
     }
     
-    func fetchCategories() {
-        guard let items = controller.fetchedObjects else { return }
-        
-        let categories = items.compactMap { $0.toModel() }
-        
-        delegate?.didUpdateCategories(categories)
+    var categories: [TrackerCategory] {
+        guard let items = controller.fetchedObjects else { return [] }
+        return items.compactMap { $0.toModel() }
     }
     
     func addCategory(_ item: TrackerCategory) throws {
@@ -53,7 +47,7 @@ final class TrackerCategoryStore: NSObject {
         category.title = item.title
         
         let trackers = item.trackers.map { tracker in
-            return getTrackerCoreData(tracker, for: category, context: context)
+            return getTrackerCoreData(tracker, for: category)
         }
         
         category.tracker = NSSet(array: trackers)
@@ -61,23 +55,11 @@ final class TrackerCategoryStore: NSObject {
         try context.save()
     }
     
-    func addTracker(_ tracker: Tracker, to categoryTitle: String) throws {
-        let request = TrackerCategoryCoreData.fetchRequest()
-        request.predicate = NSPredicate(format: "title == %@", categoryTitle)
-        
-        guard let categoryEntity = try context.fetch(request).first else { return }
-        
-        let trackerEntity = getTrackerCoreData(tracker, for: categoryEntity, context: context)
-        categoryEntity.addToTracker(trackerEntity)
-        
-        try context.save()
-    }
-    
-    private func getTrackerCoreData(_ tracker: Tracker, for category: TrackerCategoryCoreData, context: NSManagedObjectContext) -> TrackerCoreData {
+    private func getTrackerCoreData(_ tracker: Tracker, for category: TrackerCategoryCoreData) -> TrackerCoreData {
         let trackerEntity = TrackerCoreData(context: context)
         trackerEntity.id = tracker.id
         trackerEntity.title = tracker.title
-        trackerEntity.colorHex = UIColorMarshalling().hexString(from: tracker.color)
+        trackerEntity.colorHex = tracker.hexString()
         trackerEntity.emoji = tracker.emoji
         trackerEntity.weekdays = tracker.weekdays.map { $0.rawValue } as NSObject
         trackerEntity.category = category
