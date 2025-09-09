@@ -21,9 +21,16 @@ final class CreateTrackerScheduleViewController: UIViewController {
         view.backgroundColor = .ybBlack
         navigationItem.title = "Расписание"
         
-        tableView.translatesAutoresizingMaskIntoConstraints = false
+        setupTableView()
+        
+        button.addTarget(self, action: #selector(closePage), for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        setupLayout()
+    }
+    
+    private func setupTableView() {
         tableView.backgroundColor = .background
-        tableView.separatorStyle = .singleLine
         tableView.layer.cornerRadius = 16
         tableView.layer.masksToBounds = true
         tableView.isScrollEnabled = false
@@ -31,9 +38,15 @@ final class CreateTrackerScheduleViewController: UIViewController {
         tableView.dataSource = self
         tableView.register(CreateWeekDayCell.self, forCellReuseIdentifier: CreateWeekDayCell.identifier)
         
-        button.addTarget(self, action: #selector(closePage), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
+        tableView.tableFooterView = UIView()
+        tableView.separatorStyle = .singleLine
+        tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: CGFloat.leastNormalMagnitude))
         
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+    }
+    
+    private func setupLayout() {
         view.addSubview(tableView)
         view.addSubview(button)
         
@@ -81,6 +94,10 @@ extension CreateTrackerScheduleViewController: UITableViewDataSource {
             } else {
                 self.weekdays.append(day)
             }
+        }
+                
+        if indexPath.row == WeekdaysEnum.allCases.count - 1 {
+            cell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.size.width, bottom: 0, right: 0)
         }
         
         return cell
