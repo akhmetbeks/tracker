@@ -59,7 +59,6 @@ final class CreateTrackerViewController: UIViewController {
         emojiCollectionView.delegate = self
         colorCollectionView.delegate = self
         
-        scrollView.showsVerticalScrollIndicator = true
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -69,6 +68,8 @@ final class CreateTrackerViewController: UIViewController {
         containerView.translatesAutoresizingMaskIntoConstraints = false
         containerView.isUserInteractionEnabled = true
         
+        titleTextField.delegate = self
+        titleTextField.returnKeyType = .done
         titleTextField.placeholder = "Введите название трекера"
         titleTextField.addTarget(self, action: #selector(limitLength), for: .editingChanged)
         titleTextField.textColor = .text
@@ -87,6 +88,7 @@ final class CreateTrackerViewController: UIViewController {
         buttonsTableView.translatesAutoresizingMaskIntoConstraints = false
         buttonsTableView.backgroundColor = .background
         buttonsTableView.separatorStyle = .singleLine
+        buttonsTableView.tableFooterView = UIView(frame: .zero)
         buttonsTableView.layer.cornerRadius = 16
         buttonsTableView.layer.masksToBounds = true
         buttonsTableView.isScrollEnabled = false
@@ -117,7 +119,7 @@ final class CreateTrackerViewController: UIViewController {
         colorLabel.text = "Цвет"
         colorLabel.translatesAutoresizingMaskIntoConstraints = false
         colorLabel.font = .systemFont(ofSize: 19, weight: .bold)
-
+        
         containerView.addSubview(titleTextField)
         containerView.addSubview(clearButton)
         buttonStackView.addArrangedSubview(cancelButton)
@@ -179,7 +181,7 @@ final class CreateTrackerViewController: UIViewController {
             buttonsTableView.heightAnchor.constraint(equalToConstant: showSchedule ? 150 : 75),
 
             emojiLabel.topAnchor.constraint(equalTo: buttonsTableView.bottomAnchor, constant: 32),
-            emojiLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            emojiLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             emojiLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
 
             emojiCollectionView.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor),
@@ -188,7 +190,7 @@ final class CreateTrackerViewController: UIViewController {
             emojiCollectionView.heightAnchor.constraint(equalToConstant: 230),
 
             colorLabel.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor),
-            colorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            colorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             colorLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
 
             colorCollectionView.topAnchor.constraint(equalTo: colorLabel.bottomAnchor),
@@ -259,6 +261,7 @@ final class CreateTrackerViewController: UIViewController {
         vc.weekdays = trackerWeekdays
         vc.setWeekdays = { [weak self] weekdays in
             self?.trackerWeekdays = weekdays
+            self?.buttonsTableView.reloadRows(at: [IndexPath(row: 1, section: 0)], with: .automatic)
         }
         present(UINavigationController(rootViewController: vc), animated: true)
     }
@@ -313,6 +316,27 @@ extension CreateTrackerViewController: UITableViewDataSource {
         
         createTrackerCell.setTitle(buttonTitles[showSchedule ? indexPath.row : 0])
         
+        if indexPath.row == 1 && showSchedule {
+            var weekdaysSubtitle = self.trackerWeekdays.compactMap(\.shortTitle).joined(separator: ", ")
+            if trackerWeekdays.count == 7 { weekdaysSubtitle = "Каждый день" }
+            createTrackerCell.setSubtitle(weekdaysSubtitle)
+        }
+        
         return createTrackerCell
     }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
+            cell.separatorInset = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 12)
+        } else {
+            cell.separatorInset = .zero
+        }
+    }
+}
+
+extension CreateTrackerViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+       textField.resignFirstResponder()
+       return true
+   }
 }

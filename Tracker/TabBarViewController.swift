@@ -25,5 +25,20 @@ final class TabBarController: UITabBarController {
         let secondNavController = UINavigationController(rootViewController: statsController)
           
         self.viewControllers = [firstNavController, secondNavController]
+        
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .ybBlack
+        appearance.shadowColor = .black
+        
+        self.tabBar.standardAppearance = appearance
+        
+        if #available(iOS 15.0, *) {
+            self.tabBar.scrollEdgeAppearance = appearance
+        }
+    }
+    
+    override func viewDidLoad() {
+        self.selectedIndex = 0
     }
 }

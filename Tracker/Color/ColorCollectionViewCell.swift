@@ -17,7 +17,7 @@ final class ColorCollectionViewCell: UICollectionViewCell {
         super.init(frame: frame)
 
         view.backgroundColor = .clear
-        view.layer.cornerRadius = 12
+        view.layer.cornerRadius = 8
         innerView.layer.cornerRadius = 8
         view.translatesAutoresizingMaskIntoConstraints = false
         innerView.translatesAutoresizingMaskIntoConstraints = false
@@ -38,10 +38,10 @@ final class ColorCollectionViewCell: UICollectionViewCell {
             view.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             view.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             view.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            innerView.topAnchor.constraint(equalTo: view.topAnchor, constant: 9),
-            innerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 9),
-            innerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -9),
-            innerView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -9),
+            innerView.topAnchor.constraint(equalTo: view.topAnchor, constant: 6),
+            innerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 6),
+            innerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -6),
+            innerView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -6),
         ])
     }
     
@@ -49,7 +49,7 @@ final class ColorCollectionViewCell: UICollectionViewCell {
         innerView.backgroundColor = color
         
         if isActive {
-            view.layer.borderWidth = 6
+            view.layer.borderWidth = 3
             view.layer.borderColor = color.withAlphaComponent(0.3).cgColor
         } else {
             view.layer.borderWidth = 0

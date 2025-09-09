@@ -26,7 +26,13 @@ final class TrackerCategoryStore: NSObject {
             cacheName: nil)
         
         controller.delegate = self
-        try? controller.performFetch()
+        
+        do {
+            try controller.performFetch()
+        } catch {
+            print("Ошибка при инициализации NSFetchedResultsController: \(error.localizedDescription)")
+        }
+        
         return controller
     }()
     

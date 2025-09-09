@@ -10,13 +10,13 @@ import UIKit
 
 final class TrackerPersistentCoordinator {
     static let shared = TrackerPersistentCoordinator()
-    
     private let container: NSPersistentContainer
+    
     var context: NSManagedObjectContext {
         container.viewContext
     }
     
-    init() {
+    private init() {
         container = NSPersistentContainer(name: "TrackerModel")
         container.loadPersistentStores { description, error in
             if let error = error as NSError? {

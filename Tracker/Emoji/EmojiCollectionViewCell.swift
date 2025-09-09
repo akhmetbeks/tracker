@@ -33,6 +33,7 @@ final class EmojiCollectionViewCell: UICollectionViewCell {
     
     func setup(with emoji: String, isActive: Bool) {
         label.text = emoji
+        label.font = .systemFont(ofSize: 32, weight: .bold)
         label.textAlignment = .center
         if isActive {
             label.backgroundColor = .ybLightGrey

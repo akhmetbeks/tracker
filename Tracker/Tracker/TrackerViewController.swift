@@ -159,7 +159,7 @@ final class TrackerViewController: UIViewController {
     private func getWeekday() -> WeekdaysEnum? {
         guard let date = selectedDate else { return nil }
         let weekday = Calendar.current.component(.weekday, from: date)
-        return WeekdaysEnum.allCases[weekday - 1]
+        return WeekdaysEnum.allCases[weekday - 2]
     }
     
     private func configureConstraints() {
@@ -253,7 +253,7 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let availableWidth = collectionView.frame.width - cellParam.paddingWidth
         let cellWidth = availableWidth / CGFloat(cellParam.cellCount)
-        return CGSize(width: cellWidth, height: cellWidth * 0.8)
+        return CGSize(width: cellWidth, height: 148)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {

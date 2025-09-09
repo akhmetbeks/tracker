@@ -8,8 +8,8 @@
 import UIKit
 
 final class TrackerViewCell: UICollectionViewCell {
-    private let button = UIButton(type: .system)
     private let countLabel = UILabel()
+    private let checkmarkImageView = UIImageView()
     
     static let identifier = "TrackerViewCell"
     private var tracker: Tracker?
@@ -55,13 +55,14 @@ final class TrackerViewCell: UICollectionViewCell {
         countLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let image = UIImage(resource: isCompleted ? .check : .plus)
-        button.setImage(image, for: .normal)
-        button.tintColor = tracker.color
-        button.translatesAutoresizingMaskIntoConstraints = false
+            .withRenderingMode(.alwaysTemplate)
+        checkmarkImageView.image = image
+        checkmarkImageView.tintColor = tracker.color
+        checkmarkImageView.translatesAutoresizingMaskIntoConstraints = false
         
         contentView.addSubview(containerView)
         contentView.addSubview(countLabel)
-        contentView.addSubview(button)
+        contentView.addSubview(checkmarkImageView)
         containerView.addSubview(emojiLabel)
         containerView.addSubview(titleLabel)
         
@@ -83,11 +84,11 @@ final class TrackerViewCell: UICollectionViewCell {
             
             countLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             countLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
-            button.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 8),
-            button.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
-            button.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
-            button.widthAnchor.constraint(equalToConstant: 34),
-            button.heightAnchor.constraint(equalToConstant: 34)
+            checkmarkImageView.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 8),
+            checkmarkImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            checkmarkImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
+            checkmarkImageView.widthAnchor.constraint(equalToConstant: 34),
+            checkmarkImageView.heightAnchor.constraint(equalToConstant: 34)
         ])
     }
 }

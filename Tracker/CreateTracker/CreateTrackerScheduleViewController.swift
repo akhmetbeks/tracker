@@ -30,6 +30,7 @@ final class CreateTrackerScheduleViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(CreateWeekDayCell.self, forCellReuseIdentifier: CreateWeekDayCell.identifier)
+        tableView.tableFooterView = UIView(frame: .zero)
         
         button.addTarget(self, action: #selector(closePage), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false

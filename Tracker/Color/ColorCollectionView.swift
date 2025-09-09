@@ -16,7 +16,7 @@ final class ColorCollectionView: UIView {
     
     private var selectedColor: UIColor?
     
-    var delegate: CreateTrackerDelegate?
+    weak var delegate: CreateTrackerDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -50,14 +50,15 @@ extension ColorCollectionView: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let itemsPerRow: CGFloat = 6
         let padding: CGFloat = 16 * 2
-        let availableWidth = collectionView.bounds.width - padding
+        let innerPadding = 5 * (itemsPerRow - 1)
+        let availableWidth = collectionView.bounds.width - padding - innerPadding
         let widthPerItem = availableWidth / itemsPerRow
 
         return CGSize(width: widthPerItem, height: widthPerItem)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        0
+        5
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {

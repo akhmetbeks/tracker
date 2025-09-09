@@ -9,12 +9,12 @@ import UIKit
 
 final class EmojiCollectionView: UIView {
     private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    private let emojiList = ["🐶", "🦄", "🍎", "🍿", "🥦", "🎮",
-                     "🥎", "🥊", "🥋", "🎱", "📚", "📱",
-                     "🛀🏻", "🏄🏻‍♂️", "🏀", "🏊🏻‍♀️", "♟️", "🔮"]
+    private let emojiList = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
+                             "😇", "😡", "🥶", "🤔", "🙌", "🍔",
+                             "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
     private var selectedEmoji: String?
     
-    var delegate: CreateTrackerDelegate?
+    weak var delegate: CreateTrackerDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
