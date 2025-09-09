@@ -87,14 +87,17 @@ final class CreateTrackerViewController: UIViewController {
         
         buttonsTableView.translatesAutoresizingMaskIntoConstraints = false
         buttonsTableView.backgroundColor = .background
-        buttonsTableView.separatorStyle = .singleLine
-        buttonsTableView.tableFooterView = UIView(frame: .zero)
         buttonsTableView.layer.cornerRadius = 16
         buttonsTableView.layer.masksToBounds = true
         buttonsTableView.isScrollEnabled = false
         buttonsTableView.delegate = self
         buttonsTableView.dataSource = self
         buttonsTableView.register(CreateTrackerCell.self, forCellReuseIdentifier: CreateTrackerCell.identifier)
+        
+        buttonsTableView.tableFooterView = UIView()
+        buttonsTableView.separatorStyle = .singleLine
+        buttonsTableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        buttonsTableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: CGFloat.leastNormalMagnitude))
                 
         cancelButton.layer.cornerRadius = 16
         cancelButton.layer.masksToBounds = true
@@ -317,20 +320,18 @@ extension CreateTrackerViewController: UITableViewDataSource {
         createTrackerCell.setTitle(buttonTitles[showSchedule ? indexPath.row : 0])
         
         if indexPath.row == 1 && showSchedule {
+            createTrackerCell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.size.width, bottom: 0, right: 0)
+            
             var weekdaysSubtitle = self.trackerWeekdays.compactMap(\.shortTitle).joined(separator: ", ")
             if trackerWeekdays.count == 7 { weekdaysSubtitle = "Каждый день" }
             createTrackerCell.setSubtitle(weekdaysSubtitle)
         }
         
-        return createTrackerCell
-    }
-    
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 12)
-        } else {
-            cell.separatorInset = .zero
+        if indexPath.row == 0 && showSchedule == false {
+            createTrackerCell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.size.width, bottom: 0, right: 0)
         }
+        
+        return createTrackerCell
     }
 }
 
