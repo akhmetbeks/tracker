@@ -10,11 +10,12 @@ import UIKit
 final class TabBarController: UITabBarController {
     override func awakeFromNib() {
         super.awakeFromNib()
-           
+        
+        let container = (UIApplication.shared.delegate as! AppDelegate).storeContainer
         let trackerController = TrackerViewController(
-            categoryStore: TrackerCategoryStore(),
-            trackerStore: TrackerStore(),
-            recordStore: TrackerRecordStore())
+            categoryStore: container.categoryStore,
+            trackerStore: container.trackerStore,
+            recordStore: container.recordStore)
         
         trackerController.tabBarItem = UITabBarItem(title: "Трекеры", image: UIImage(resource: .tracker), tag: 0)
         

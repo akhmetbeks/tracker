@@ -31,7 +31,13 @@ final class SplashViewController: UIViewController {
             return
         }
         
-        let controller = UIStoryboard(name: "Main", bundle: .main).instantiateViewController(withIdentifier: "TabBarViewController")
+        var controller: UIViewController
+        
+        if UserDefaults.standard.bool(forKey: Constants.hasSeenOnboardingKey) {
+            controller = UIStoryboard(name: "Main", bundle: .main).instantiateViewController(withIdentifier: "TabBarViewController")
+        } else {
+            controller = OnboardingPageController()
+        }
         
         window.rootViewController = controller
     }

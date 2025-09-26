@@ -243,6 +243,11 @@ final class CreateTrackerViewController: UIViewController {
             return
         }
         
+        guard let categoryName = trackerCategory?.title else {
+            showAlertError(message: "Нужно выбрать категорию")
+            return
+        }
+        
         let tracker = Tracker(
             id: UUID(),
             title: title,
@@ -251,11 +256,21 @@ final class CreateTrackerViewController: UIViewController {
             weekdays: showSchedule ? trackerWeekdays : Array(WeekdaysEnum.allCases)
         )
         
-        let category = TrackerCategory(title: "Домашний уют", trackers: [tracker])
+        let category = TrackerCategory(title: categoryName, trackers: [tracker])
         
         onTrackerAdded?(category)
         
         dismiss(animated: true)
+    }
+    
+    @objc private func pushCategory() {
+        let vc = CategoryViewController()
+        vc.modalPresentationStyle = .pageSheet
+        vc.onCategorySelected = { [weak self] title in
+            self?.trackerCategory = TrackerCategory(title: title, trackers: [])
+            self?.buttonsTableView.reloadRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+        }
+        present(UINavigationController(rootViewController: vc), animated: true)
     }
     
     @objc private func pushSchedule() {
@@ -300,6 +315,10 @@ extension CreateTrackerViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if indexPath.row == 0 {
+            pushCategory()
+        }
+        
         if indexPath.row == 1 {
             pushSchedule()
         }
@@ -319,7 +338,7 @@ extension CreateTrackerViewController: UITableViewDataSource {
         
         createTrackerCell.setTitle(buttonTitles[showSchedule ? indexPath.row : 0])
         
-        if indexPath.row == 1 && showSchedule {
+        if indexPath.row == 1 {
             createTrackerCell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.size.width, bottom: 0, right: 0)
             
             var weekdaysSubtitle = self.trackerWeekdays.compactMap(\.shortTitle).joined(separator: ", ")
@@ -327,8 +346,9 @@ extension CreateTrackerViewController: UITableViewDataSource {
             createTrackerCell.setSubtitle(weekdaysSubtitle)
         }
         
-        if indexPath.row == 0 && showSchedule == false {
+        if indexPath.row == 0 {
             createTrackerCell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.size.width, bottom: 0, right: 0)
+            createTrackerCell.setSubtitle(trackerCategory?.title ?? "")
         }
         
         return createTrackerCell
