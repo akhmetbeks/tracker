@@ -7,17 +7,12 @@
 
 import UIKit
 
-protocol TrackerCellDelegate: AnyObject {
-    func didTapComplete(for tracker: Tracker)
-}
-
 final class TrackerViewCell: UICollectionViewCell {
-    private let button = UIButton(type: .system)
     private let countLabel = UILabel()
+    private let checkmarkImageView = UIImageView()
     
     static let identifier = "TrackerViewCell"
     private var tracker: Tracker?
-    weak var delegate: TrackerCellDelegate?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -46,20 +41,29 @@ final class TrackerViewCell: UICollectionViewCell {
         titleLabel.lineBreakMode = .byWordWrapping
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
+        let emojiLabel = UILabel()
+        emojiLabel.text = tracker.emoji
+        emojiLabel.textAlignment = .center
+        emojiLabel.backgroundColor = .white.withAlphaComponent(0.3)
+        emojiLabel.layer.cornerRadius = 12
+        emojiLabel.layer.masksToBounds = true
+        emojiLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         countLabel.text = "\(count) дней"
         countLabel.font = .ypMedium
         countLabel.textColor = .text
         countLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let image = UIImage(resource: isCompleted ? .check : .plus)
-        button.setImage(image, for: .normal)
-        button.addTarget(self, action: #selector(toggleDone), for: .touchUpInside)
-        button.tintColor = tracker.color
-        button.translatesAutoresizingMaskIntoConstraints = false
+            .withRenderingMode(.alwaysTemplate)
+        checkmarkImageView.image = image
+        checkmarkImageView.tintColor = tracker.color
+        checkmarkImageView.translatesAutoresizingMaskIntoConstraints = false
         
         contentView.addSubview(containerView)
         contentView.addSubview(countLabel)
-        contentView.addSubview(button)
+        contentView.addSubview(checkmarkImageView)
+        containerView.addSubview(emojiLabel)
         containerView.addSubview(titleLabel)
         
         NSLayoutConstraint.activate([
@@ -68,22 +72,23 @@ final class TrackerViewCell: UICollectionViewCell {
             containerView.topAnchor.constraint(equalTo: contentView.topAnchor),
             containerView.bottomAnchor.constraint(equalTo: countLabel.topAnchor, constant: -16),
 
+            emojiLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
+            emojiLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 12),
+            emojiLabel.widthAnchor.constraint(equalToConstant: 24),
+            emojiLabel.heightAnchor.constraint(equalToConstant: 24),
+            
+            titleLabel.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor, constant: 8),
             titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
             titleLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -12),
             titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
             
             countLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             countLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
-            button.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 8),
-            button.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
-            button.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
-            button.widthAnchor.constraint(equalToConstant: 34),
-            button.heightAnchor.constraint(equalToConstant: 34)
+            checkmarkImageView.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 8),
+            checkmarkImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            checkmarkImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
+            checkmarkImageView.widthAnchor.constraint(equalToConstant: 34),
+            checkmarkImageView.heightAnchor.constraint(equalToConstant: 34)
         ])
-    }
-    
-    @objc private func toggleDone() {
-        guard let tracker else { return }
-        delegate?.didTapComplete(for: tracker)
     }
 }

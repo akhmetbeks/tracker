@@ -11,7 +11,11 @@ final class TabBarController: UITabBarController {
     override func awakeFromNib() {
         super.awakeFromNib()
            
-        let trackerController = TrackerViewController()
+        let trackerController = TrackerViewController(
+            categoryStore: TrackerCategoryStore(),
+            trackerStore: TrackerStore(),
+            recordStore: TrackerRecordStore())
+        
         trackerController.tabBarItem = UITabBarItem(title: "Трекеры", image: UIImage(resource: .tracker), tag: 0)
         
         let statsController = UIViewController()
@@ -21,5 +25,20 @@ final class TabBarController: UITabBarController {
         let secondNavController = UINavigationController(rootViewController: statsController)
           
         self.viewControllers = [firstNavController, secondNavController]
+        
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .ybBlack
+        appearance.shadowColor = .black
+        
+        self.tabBar.standardAppearance = appearance
+        
+        if #available(iOS 15.0, *) {
+            self.tabBar.scrollEdgeAppearance = appearance
+        }
+    }
+    
+    override func viewDidLoad() {
+        self.selectedIndex = 0
     }
 }
