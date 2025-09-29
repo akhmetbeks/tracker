@@ -10,7 +10,7 @@ import UIKit
 final class CategoryViewController: UIViewController {
     private let viewModel = CategoryViewModel()
     private let tableView = UITableView()
-    private let button = TrackerButton(title: "Добавить категорию")
+    private let button = TrackerButton(title: L10n.addCategory)
     private let rowHeight: CGFloat = 75
     
     private let starImage: UIImageView = {
@@ -20,7 +20,7 @@ final class CategoryViewController: UIViewController {
     }()
     private let emptyLabel: UILabel = {
         let label = UILabel()
-        label.text = "Привычки и события можно объединить по смыслу"
+        label.text = L10n.emptyCategoriesLabel
         label.font = .ypMedium
         label.textColor = .text
         label.lineBreakMode = .byWordWrapping
@@ -45,7 +45,7 @@ final class CategoryViewController: UIViewController {
     
     override func viewDidLoad() {
         view.backgroundColor = .ybBlack
-        navigationItem.title = "Категория"
+        navigationItem.title = L10n.category
         
         button.addTarget(self, action: #selector(navigateCreatePage), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false

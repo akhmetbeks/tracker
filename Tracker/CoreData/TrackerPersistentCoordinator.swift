@@ -20,7 +20,7 @@ final class TrackerPersistentCoordinator {
         container = NSPersistentContainer(name: "TrackerModel")
         container.loadPersistentStores { description, error in
             if let error = error as NSError? {
-                fatalError("Ошибка при загрузке хранилища: \(error)")
+                fatalError(L10n.errorPersistentStore(error.localizedDescription))
             }
         }
     }

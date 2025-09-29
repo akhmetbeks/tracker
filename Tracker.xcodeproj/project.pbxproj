@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F8779B8C2E8A8EF300AB3E7B /* swiftgen.yml in Resources */ = {isa = PBXBuildFile; fileRef = F8779B8B2E8A8EEB00AB3E7B /* swiftgen.yml */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		F861DDF72E4DE5E10014210F /* Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F8779B8B2E8A8EEB00AB3E7B /* swiftgen.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = swiftgen.yml; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -29,6 +34,11 @@
 			path = Tracker;
 			sourceTree = "<group>";
 		};
+		F8779B8E2E8A8F6600AB3E7B /* Generated */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Generated;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,6 +55,8 @@
 		F861DDEE2E4DE5E10014210F = {
 			isa = PBXGroup;
 			children = (
+				F8779B8E2E8A8F6600AB3E7B /* Generated */,
+				F8779B8B2E8A8EEB00AB3E7B /* swiftgen.yml */,
 				F861DDF92E4DE5E10014210F /* Tracker */,
 				F861DDF82E4DE5E10014210F /* Products */,
 			);
@@ -75,6 +87,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				F861DDF92E4DE5E10014210F /* Tracker */,
+				F8779B8E2E8A8F6600AB3E7B /* Generated */,
 			);
 			name = Tracker;
 			packageProductDependencies = (
@@ -99,11 +112,11 @@
 				};
 			};
 			buildConfigurationList = F861DDF22E4DE5E10014210F /* Build configuration list for PBXProject "Tracker" */;
-			developmentRegion = en;
+			developmentRegion = ru;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				en,
 				Base,
+				ru,
 			);
 			mainGroup = F861DDEE2E4DE5E10014210F;
 			minimizedProjectReferenceProxies = 1;
@@ -122,6 +135,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F8779B8C2E8A8EF300AB3E7B /* swiftgen.yml in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -264,6 +278,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -321,6 +336,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

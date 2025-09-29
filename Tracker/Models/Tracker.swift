@@ -12,7 +12,7 @@ struct Tracker {
     let title: String
     let color: UIColor
     let emoji: String
-    let weekdays: [WeekdaysEnum]
+    let weekdays: [Weekday]
 }
 
 extension Tracker {

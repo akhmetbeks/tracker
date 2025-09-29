@@ -45,7 +45,7 @@ final class TrackerViewController: UIViewController {
     
     private let emptyTasksLabel: UILabel = {
         let label = UILabel()
-        label.text = "Что будем отслеживать?"
+        label.text = L10n.emptyTrackerLabel
         label.font = .ypMedium
         label.textColor = .text
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -74,7 +74,7 @@ final class TrackerViewController: UIViewController {
         datePicker.datePickerMode = .date
         datePicker.addTarget(self, action: #selector(pickedDate(_:)), for: .valueChanged)
         
-        navigationItem.title = "Трекеры"
+        navigationItem.title = L10n.trackers
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .always
         navigationItem.leftBarButtonItem = UIBarButtonItem(
@@ -86,7 +86,7 @@ final class TrackerViewController: UIViewController {
         navigationItem.leftBarButtonItem?.tintColor = .text
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
         
-        searchBar.placeholder = "Поиск"
+        searchBar.placeholder = L10n.search
         searchBar.searchBarStyle = .minimal
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         
@@ -142,23 +142,10 @@ final class TrackerViewController: UIViewController {
         showCollectionView = !filteredCategories.isEmpty
     }
     
-    private func getWeekday() -> WeekdaysEnum? {
+    private func getWeekday() -> Weekday? {
         guard let date = selectedDate else { return nil }
         let weekday = Calendar.current.component(.weekday, from: date)
-        return getWeekday(for: weekday)
-    }
-    
-    private func getWeekday(for index: Int) -> WeekdaysEnum {
-        switch index {
-        case 1: return .sunday
-        case 2: return .monday
-        case 3: return .tuesday
-        case 4: return .wednesday
-        case 5: return .thursday
-        case 6: return .friday
-        case 7: return .saturday
-        default: return .sunday
-        }
+        return Weekday.allCases[weekday - 1]
     }
     
     private func configureConstraints() {

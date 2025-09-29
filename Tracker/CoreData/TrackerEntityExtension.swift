@@ -25,8 +25,8 @@ extension TrackerCoreData {
               let emoji = self.emoji else { return nil }
 
         let color = color(from: colorHex)
-        let weekdaysRaw = self.weekdays as? [String] ?? []
-        let weekdays = weekdaysRaw.compactMap { WeekdaysEnum(rawValue: $0) }
+        let weekdaysRaw = self.weekdays as? [Int] ?? []
+        let weekdays = weekdaysRaw.compactMap { Weekday(rawValue: $0) }
 
         return Tracker(
             id: id,

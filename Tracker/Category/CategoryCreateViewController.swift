@@ -9,7 +9,7 @@ import UIKit
 final class CategoryCreateViewController: UIViewController {
     private let containerView = UIView()
     private let textField = UITextField()
-    private let button = TrackerButton(title: "Готово")
+    private let button = TrackerButton(title: L10n.ready)
     
     private var isEnabled = false {
         didSet {
@@ -21,7 +21,7 @@ final class CategoryCreateViewController: UIViewController {
     
     override func viewDidLoad() {
         view.backgroundColor = .ybBlack
-        navigationItem.title = "Новая категория"
+        navigationItem.title = L10n.newCategory
         
         containerView.backgroundColor = .background
         containerView.layer.cornerRadius = 16
@@ -30,7 +30,7 @@ final class CategoryCreateViewController: UIViewController {
         
         textField.delegate = self
         textField.returnKeyType = .done
-        textField.placeholder = "Введите название категории"
+        textField.placeholder = L10n.emptyCategoriesLabel
         textField.addTarget(self, action: #selector(limitLength), for: .editingChanged)
         textField.textColor = .text
         textField.translatesAutoresizingMaskIntoConstraints = false

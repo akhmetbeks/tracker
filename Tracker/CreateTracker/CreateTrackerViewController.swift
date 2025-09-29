@@ -20,17 +20,18 @@ final class CreateTrackerViewController: UIViewController {
     private let clearButton = UIButton()
     private let errorLabel = UILabel()
     private let cancelButton = UIButton()
-    private let saveButton = TrackerButton(title: "Сохранить")
+    private let saveButton = TrackerButton(title: L10n.save)
     private let buttonStackView = UIStackView()
     private let buttonsTableView = UITableView(frame: .zero, style: .plain)
-    private let buttonTitles = ["Категория", "Расписание"]
+    private let buttonTitles = [L10n.category, L10n.schedule]
     private let emojiLabel = UILabel()
     private let emojiCollectionView = EmojiCollectionView()
     private let colorLabel = UILabel()
     private let colorCollectionView = ColorCollectionView()
+    private let formatter = DateFormatter()
     
     private var trackerCategory: TrackerCategory?
-    private var trackerWeekdays: [WeekdaysEnum] = []
+    private var trackerWeekdays: [Weekday] = []
     private var selectedEmoji: String?
     private var selectedColor: UIColor?
     var onTrackerAdded: ((TrackerCategory) -> Void)?
@@ -54,7 +55,7 @@ final class CreateTrackerViewController: UIViewController {
     
     override func viewDidLoad() {
         view.backgroundColor = .ybBlack
-        navigationItem.title = "Новая привычка"
+        navigationItem.title = L10n.newTracker
         
         emojiCollectionView.delegate = self
         colorCollectionView.delegate = self
@@ -70,7 +71,7 @@ final class CreateTrackerViewController: UIViewController {
         
         titleTextField.delegate = self
         titleTextField.returnKeyType = .done
-        titleTextField.placeholder = "Введите название трекера"
+        titleTextField.placeholder = L10n.enterTrackerName
         titleTextField.addTarget(self, action: #selector(limitLength), for: .editingChanged)
         titleTextField.textColor = .text
         titleTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -79,7 +80,7 @@ final class CreateTrackerViewController: UIViewController {
         clearButton.addTarget(self, action: #selector(clearTextField), for: .touchUpInside)
         clearButton.translatesAutoresizingMaskIntoConstraints = false
         
-        errorLabel.text = "Ограничение 38 символов"
+        errorLabel.text = L10n.errorTrackerName
         errorLabel.textColor = .ybRed
         errorLabel.font = .ypRegular
         errorLabel.isHidden = true
@@ -103,7 +104,7 @@ final class CreateTrackerViewController: UIViewController {
         cancelButton.layer.masksToBounds = true
         cancelButton.layer.borderColor = UIColor.ybRed.cgColor
         cancelButton.layer.borderWidth = 1
-        cancelButton.setTitle("Отменить", for: .normal)
+        cancelButton.setTitle(L10n.cancel, for: .normal)
         cancelButton.titleLabel?.font = .ypRegular
         cancelButton.setTitleColor(.ybRed, for: .normal)
         cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
@@ -119,7 +120,7 @@ final class CreateTrackerViewController: UIViewController {
         emojiLabel.translatesAutoresizingMaskIntoConstraints = false
         emojiLabel.font = .systemFont(ofSize: 19, weight: .bold)
         
-        colorLabel.text = "Цвет"
+        colorLabel.text = L10n.color
         colorLabel.translatesAutoresizingMaskIntoConstraints = false
         colorLabel.font = .systemFont(ofSize: 19, weight: .bold)
         
@@ -224,27 +225,27 @@ final class CreateTrackerViewController: UIViewController {
     
     @objc private func saveTapped() {
         guard let emoji = selectedEmoji else {
-            showAlertError(message: "Выберите emoji")
+            showAlertError(message: L10n.alertChooseEmoji)
             return
         }
         
         guard let color = selectedColor else {
-            showAlertError(message: "Выберите цвет")
+            showAlertError(message: L10n.alertChooseColor)
             return
         }
         
         if trackerWeekdays.isEmpty && showSchedule {
-            showAlertError(message: "Нужно выбрать хотя бы один день недели")
+            showAlertError(message: L10n.alertChooseWeekday)
             return
         }
         
         guard let title = titleTextField.text else {
-            showAlertError(message: "Заполните название")
+            showAlertError(message: L10n.alertEnterTrackerName)
             return
         }
         
         guard let categoryName = trackerCategory?.title else {
-            showAlertError(message: "Нужно выбрать категорию")
+            showAlertError(message: L10n.alertChooseCategory)
             return
         }
         
@@ -253,7 +254,7 @@ final class CreateTrackerViewController: UIViewController {
             title: title,
             color: color,
             emoji: emoji,
-            weekdays: showSchedule ? trackerWeekdays : Array(WeekdaysEnum.allCases)
+            weekdays: showSchedule ? trackerWeekdays : Array(Weekday.allCases)
         )
         
         let category = TrackerCategory(title: categoryName, trackers: [tracker])
@@ -291,7 +292,7 @@ final class CreateTrackerViewController: UIViewController {
             preferredStyle: .alert
         )
         
-        let action = UIAlertAction(title: "Окей", style: .cancel)
+        let action = UIAlertAction(title: L10n.okay, style: .cancel)
         
         alert.addAction(action)
         
@@ -340,10 +341,9 @@ extension CreateTrackerViewController: UITableViewDataSource {
         
         if indexPath.row == 1 {
             createTrackerCell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.size.width, bottom: 0, right: 0)
-            
-            var weekdaysSubtitle = self.trackerWeekdays.compactMap(\.shortTitle).joined(separator: ", ")
-            if trackerWeekdays.count == 7 { weekdaysSubtitle = "Каждый день" }
-            createTrackerCell.setSubtitle(weekdaysSubtitle)
+            var weekdayList = self.trackerWeekdays.map({ $0.shortName(formatter: formatter) }).joined(separator: ", ")
+            if trackerWeekdays.count == 7 { weekdayList = L10n.everyday }
+            createTrackerCell.setSubtitle(weekdayList)
         }
         
         if indexPath.row == 0 {

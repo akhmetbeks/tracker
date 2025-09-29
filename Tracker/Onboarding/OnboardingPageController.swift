@@ -23,8 +23,8 @@ final class OnboardingPageController: UIViewController {
     }
     
     private func setupPages() {
-        let firstPage = OnboardingViewController(title: "Отслеживайте только то, что хотите", image: .onboarding1)
-        let secondPage = OnboardingViewController(title: "Даже если это не литры воды и йога", image: .onboarding2)
+        let firstPage = OnboardingViewController(title: L10n.onboardingTitle1, image: .onboarding1)
+        let secondPage = OnboardingViewController(title: L10n.onboardingTitle2, image: .onboarding2)
         
         pages = [firstPage, secondPage]
     }
