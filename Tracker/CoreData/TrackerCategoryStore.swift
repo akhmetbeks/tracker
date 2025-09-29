@@ -7,13 +7,8 @@
 
 import CoreData
 
-protocol TrackerCategoryStoreDelegate: AnyObject {
-    func didInsertSections(_ sections: IndexSet)
-}
-
-final class TrackerCategoryStore: NSObject {
-    private let context: NSManagedObjectContext    
-    weak var delegate: TrackerCategoryStoreDelegate?
+final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
+    private let context: NSManagedObjectContext
     
     private lazy var controller: NSFetchedResultsController<TrackerCategoryCoreData> = {
         let fetchRequest = TrackerCategoryCoreData.fetchRequest()
@@ -59,6 +54,7 @@ final class TrackerCategoryStore: NSObject {
         category.tracker = NSSet(array: trackers)
         
         try context.save()
+        try controller.performFetch()
     }
     
     private func getTrackerCoreData(_ tracker: Tracker, for category: TrackerCategoryCoreData) -> TrackerCoreData {
@@ -70,16 +66,5 @@ final class TrackerCategoryStore: NSObject {
         trackerEntity.weekdays = tracker.weekdays.map { $0.rawValue } as NSObject
         trackerEntity.category = category
         return trackerEntity
-    }
-}
-
-extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
-    func controller(_ controller: NSFetchedResultsController<any NSFetchRequestResult>, didChange sectionInfo: any NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
-        switch type {
-        case .insert:
-            delegate?.didInsertSections(IndexSet(integer: sectionIndex))
-        default:
-            break
-        }
     }
 }

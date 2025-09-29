@@ -11,7 +11,6 @@ final class TrackerViewController: UIViewController {
     private let categoryStore: TrackerCategoryStore
     private let trackerStore: TrackerStore
     private let recordStore: TrackerRecordStore
-    private var categories: [TrackerCategory] = []
     private var filteredCategories: [TrackerCategory] = []
     private var emptyViewConstraints: [NSLayoutConstraint] = []
     private var collectionViewContraints: [NSLayoutConstraint] = []
@@ -67,9 +66,7 @@ final class TrackerViewController: UIViewController {
     override func viewDidLoad() {
         view.backgroundColor = .ybBlack
         
-        categoryStore.delegate = self
         trackerStore.delegate = self
-        categories = categoryStore.categories
         
         let datePicker = UIDatePicker()
         datePicker.date = selectedDate ?? Date()
@@ -123,19 +120,7 @@ final class TrackerViewController: UIViewController {
         
         vc.onTrackerAdded = { [weak self] item in
             guard let self, let tracker = item.trackers.first else { return }
-            
-            if let index = self.categories.firstIndex(where: { $0.title == item.title }) {
-                let category = self.categories[index]
-                var newTrackers = category.trackers
-                newTrackers.append(tracker)
-                self.categories[index] = TrackerCategory(title: item.title, trackers: newTrackers)
-                filterCategories()
-                try? self.trackerStore.addTracker(tracker, to: item.title)
-            } else {
-                self.categories.append(item)
-                filterCategories()
-                try? self.categoryStore.addCategory(item)
-            }
+            try? self.trackerStore.addTracker(tracker, to: item.title)
         }
         vc.modalPresentationStyle = .pageSheet
         present(UINavigationController(rootViewController: vc), animated: true)
@@ -147,6 +132,7 @@ final class TrackerViewController: UIViewController {
     
     private func filterCategories() {
         guard let selectedWeekday = getWeekday() else { return }
+        let categories = categoryStore.categories
         filteredCategories = categories.compactMap({
             let filteredTrackers = $0.trackers.filter({ $0.weekdays.contains(selectedWeekday) })
             if filteredTrackers.isEmpty { return nil }
@@ -159,7 +145,20 @@ final class TrackerViewController: UIViewController {
     private func getWeekday() -> WeekdaysEnum? {
         guard let date = selectedDate else { return nil }
         let weekday = Calendar.current.component(.weekday, from: date)
-        return WeekdaysEnum.allCases[weekday - 2]
+        return getWeekday(for: weekday)
+    }
+    
+    private func getWeekday(for index: Int) -> WeekdaysEnum {
+        switch index {
+        case 1: return .sunday
+        case 2: return .monday
+        case 3: return .tuesday
+        case 4: return .wednesday
+        case 5: return .thursday
+        case 6: return .friday
+        case 7: return .saturday
+        default: return .sunday
+        }
     }
     
     private func configureConstraints() {
@@ -270,16 +269,17 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
 }
 
 // MARK: - TrackerStoreDelegate
-extension TrackerViewController: TrackerCategoryStoreDelegate, TrackerStoreDelegate {
+extension TrackerViewController: TrackerStoreDelegate {
     func didInsertTracker(to categoryTitle: String) {
+        filterCategories()
+        
         if let sectionIndex = filteredCategories.firstIndex(where: { $0.title == categoryTitle }) {
-            collectionView?.reloadSections([sectionIndex])
-        }
-    }
-    
-    func didInsertSections(_ sections: IndexSet) {
-        collectionView?.performBatchUpdates {
-            collectionView?.insertSections(sections)
+            let category = filteredCategories[sectionIndex]
+            if category.trackers.count > 1 {
+                collectionView?.reloadSections([sectionIndex])
+            } else {
+                collectionView?.reloadData()
+            }
         }
     }
 }
