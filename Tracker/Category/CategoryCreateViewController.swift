@@ -61,14 +61,12 @@ final class CategoryCreateViewController: UIViewController {
     }
     
     @objc private func limitLength(_ textField: UITextField) {
-        if let text = textField.text {
+        guard let text = textField.text else { return }
             
-            enableButton(count: text.count)
-            
-            let isExceeded = text.count > 32
-            
-            if isExceeded { textField.text = String(text.prefix(32)) }
-        }
+        enableButton(count: text.count)
+        
+        let isExceeded = text.count > 32
+        if isExceeded { textField.text = String(text.prefix(32)) }
     }
     
     @objc private func createTapped() {

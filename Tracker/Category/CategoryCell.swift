@@ -11,6 +11,10 @@ final class CategoryCell: UITableViewCell {
     private let label = UILabel()
     private let checkImage = UIImageView(image: UIImage(systemName: "checkmark"))
     private let stack = UIStackView()
+    private enum Constants {
+        static let horizontalInset: CGFloat = 16
+        static let stackHeight: CGFloat = 75
+    }
     
     static let identifier = "CategoryCell"
     
@@ -43,9 +47,9 @@ final class CategoryCell: UITableViewCell {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            stack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            stack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            stack.heightAnchor.constraint(equalToConstant: 75),
+            stack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.horizontalInset),
+            stack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.horizontalInset),
+            stack.heightAnchor.constraint(equalToConstant: Constants.stackHeight),
         ])
     }
     
