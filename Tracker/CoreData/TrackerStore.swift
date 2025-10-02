@@ -9,6 +9,7 @@ import CoreData
 
 protocol TrackerStoreDelegate: AnyObject {
     func didInsertTracker(to categoryTitle: String)
+    func didUpdateTracker(on categoryTitle: String, from oldCategoryTitle: String?)
 }
 
 final class TrackerStore: NSObject {
@@ -25,15 +26,29 @@ final class TrackerStore: NSObject {
     func addTracker(_ tracker: Tracker, to categoryTitle: String) throws {
         let request = TrackerCategoryCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), categoryTitle)
-        
         guard let categoryEntity = try context.fetch(request).first else { return }
         
         let trackerEntity = getTrackerCoreData(tracker, for: categoryEntity)
         categoryEntity.addToTracker(trackerEntity)
         
         try context.save()
-        
         delegate?.didInsertTracker(to: categoryTitle)
+    }
+    
+    func updateTracker(_ tracker: Tracker, to categoryTitle: String, from oldCategoryTitle: String?) throws {
+        let request = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), categoryTitle)
+        guard let categoryEntity = try context.fetch(request).first else { return }
+        
+        let trackerEntity = getTrackerCoreData(tracker, for: categoryEntity)
+        trackerEntity.uuid = tracker.id
+        trackerEntity.title = tracker.title
+        trackerEntity.colorHex = tracker.hexString()
+        trackerEntity.emoji = tracker.emoji
+        trackerEntity.weekdays = tracker.weekdays.map { $0.rawValue } as NSObject
+        trackerEntity.category = categoryEntity
+        try context.save()
+        delegate?.didUpdateTracker(on: categoryTitle, from: oldCategoryTitle)
     }
     
     private func getTrackerCoreData(_ tracker: Tracker, for category: TrackerCategoryCoreData) -> TrackerCoreData {

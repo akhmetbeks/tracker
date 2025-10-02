@@ -15,8 +15,7 @@ final class TrackerViewController: UIViewController {
     private var emptyViewConstraints: [NSLayoutConstraint] = []
     private var collectionViewContraints: [NSLayoutConstraint] = []
     private var collectionView: UICollectionView?
-    private let stackView = UIStackView()
-    private let searchBar = UISearchBar()
+    private let searchController = UISearchController()
     private let cellParam = GeometricParams(cellCount: 2, leftInset: 16, rightInset: 16, cellSpacing: 9)
     
     private var selectedDate: Date? {
@@ -36,6 +35,14 @@ final class TrackerViewController: UIViewController {
             collectionView?.isHidden = !showCollectionView
         }
     }
+    
+    private let stackView: UIStackView = {
+        let sv = UIStackView()
+        sv.axis = .vertical
+        sv.spacing = 8
+        sv.translatesAutoresizingMaskIntoConstraints = false
+        return sv
+    }()
 
     private let starImage: UIImageView = {
         let image = UIImageView(image: UIImage(resource: .star))
@@ -86,9 +93,16 @@ final class TrackerViewController: UIViewController {
         navigationItem.leftBarButtonItem?.tintColor = .text
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
         
-        searchBar.placeholder = L10n.search
-        searchBar.searchBarStyle = .minimal
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchResultsUpdater = self
+        let searchTextField = searchController.searchBar.searchTextField
+        searchTextField.placeholder = L10n.search
+        searchTextField.clearButtonMode = .whileEditing
+        searchTextField.backgroundColor = .secondarySystemBackground
+        searchTextField.layer.cornerRadius = 8
+        searchTextField.clipsToBounds = true
+        navigationItem.searchController = searchController
+        definesPresentationContext = true
         
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         
@@ -105,7 +119,6 @@ final class TrackerViewController: UIViewController {
         
         stackView.addSubview(starImage)
         stackView.addSubview(emptyTasksLabel)
-        stackView.addSubview(searchBar)
         stackView.addSubview(collectionView)
         
         view.addSubview(stackView)
@@ -150,11 +163,7 @@ final class TrackerViewController: UIViewController {
     
     private func configureConstraints() {
         NSLayoutConstraint.activate([
-            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            searchBar.heightAnchor.constraint(equalToConstant: 36),
-            stackView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
+            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 8),
             stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
@@ -191,6 +200,20 @@ final class TrackerViewController: UIViewController {
         }
 
         collectionView?.reloadItems(at: [indexPath])
+    }
+    
+    private func editTrackerOfCategory(at index: Int, category: TrackerCategory){
+        let tracker = category.trackers[index]
+        let vc = CreateTrackerViewController()
+        vc.showSchedule = tracker.weekdays.count != 7
+        vc.trackerCategory = category
+        vc.onTrackerAdded = { [weak self] item in
+            try? self?.trackerStore.updateTracker(tracker, to: <#T##String#>, from: <#T##String?#>)
+            self?.dismiss(animated: true)
+        }
+        
+        vc.modalPresentationStyle = .pageSheet
+        present(UINavigationController(rootViewController: vc), animated: true)
     }
 }
 
@@ -268,5 +291,37 @@ extension TrackerViewController: TrackerStoreDelegate {
                 collectionView?.reloadData()
             }
         }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        return UIContextMenuConfiguration(actionProvider:  { _ in
+            return UIMenu(title: "", children: [
+                UIAction(title: "Редактировать", handler: { _ in
+                    
+                }),
+                UIAction(title: "Удалить", attributes: .destructive, handler: { _ in
+                    
+                }),
+            ])
+        })
+    }
+}
+
+// MARK: -UISearchResultsUpdating
+extension TrackerViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        if let text = searchController.searchBar.text, !text.isEmpty {
+            filteredCategories = categoryStore.categories.compactMap({
+                let filteredTrackers = $0.trackers.filter({ $0.title.lowercased().starts(with: text.lowercased()) })
+                if filteredTrackers.isEmpty { return nil }
+                return TrackerCategory(title: $0.title, trackers: filteredTrackers)
+            })
+            
+            showCollectionView = !filteredCategories.isEmpty
+        } else {
+            filterCategories()
+        }
+        
+        if showCollectionView { collectionView?.reloadData()}
     }
 }

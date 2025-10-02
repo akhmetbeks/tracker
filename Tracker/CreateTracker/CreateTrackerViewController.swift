@@ -29,11 +29,10 @@ final class CreateTrackerViewController: UIViewController {
     private let colorLabel = UILabel()
     private let colorCollectionView = ColorCollectionView()
     private let formatter = DateFormatter()
-    
-    private var trackerCategory: TrackerCategory?
     private var trackerWeekdays: [Weekday] = []
     private var selectedEmoji: String?
     private var selectedColor: UIColor?
+    var trackerCategory: TrackerCategory?
     var onTrackerAdded: ((TrackerCategory) -> Void)?
     var showSchedule = false
     
