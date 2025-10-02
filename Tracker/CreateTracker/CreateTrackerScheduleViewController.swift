@@ -14,8 +14,9 @@ final class CreateTrackerScheduleViewController: UIViewController {
     private let rowHeight: CGFloat = 75
     private let numberOfRows = CGFloat(Weekday.allCases.count)
     
-    var weekdays: [Weekday] = []
-    var setWeekdays: (([Weekday]) -> Void)?
+    private var weekdays: [Weekday] = []
+    func setWeekdays(_ value: [Weekday]) { weekdays = value }
+    var didChooseWeekdays: (([Weekday]) -> Void)?
     
     override func viewDidLoad() {
         view.backgroundColor = .ybBlack
@@ -63,7 +64,7 @@ final class CreateTrackerScheduleViewController: UIViewController {
     }
     
     @objc private func closePage() {
-        setWeekdays?(weekdays)
+        didChooseWeekdays?(weekdays)
         dismiss(animated: true)
     }
 }

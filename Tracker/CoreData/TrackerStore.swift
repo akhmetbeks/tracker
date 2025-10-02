@@ -9,7 +9,8 @@ import CoreData
 
 protocol TrackerStoreDelegate: AnyObject {
     func didInsertTracker(to categoryTitle: String)
-    func didUpdateTracker(on categoryTitle: String, from oldCategoryTitle: String?)
+    func didUpdateTracker()
+    func didDeleteTracker()
 }
 
 final class TrackerStore: NSObject {
@@ -40,15 +41,33 @@ final class TrackerStore: NSObject {
         request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), categoryTitle)
         guard let categoryEntity = try context.fetch(request).first else { return }
         
-        let trackerEntity = getTrackerCoreData(tracker, for: categoryEntity)
-        trackerEntity.uuid = tracker.id
+        let trackerRequest = TrackerCoreData.fetchRequest()
+        trackerRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCoreData.uuid), tracker.id as CVarArg)
+        guard let trackerEntity = try context.fetch(trackerRequest).first else { return }
+        
         trackerEntity.title = tracker.title
         trackerEntity.colorHex = tracker.hexString()
         trackerEntity.emoji = tracker.emoji
         trackerEntity.weekdays = tracker.weekdays.map { $0.rawValue } as NSObject
         trackerEntity.category = categoryEntity
         try context.save()
-        delegate?.didUpdateTracker(on: categoryTitle, from: oldCategoryTitle)
+        delegate?.didUpdateTracker()
+    }
+    
+    func delete(_ tracker: Tracker, from categoryTitle: String) throws {
+        let categoryRequest = TrackerCategoryCoreData.fetchRequest()
+        categoryRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), categoryTitle)
+        guard let categoryEntity = try context.fetch(categoryRequest).first else { return }
+
+        let trackerRequest = TrackerCoreData.fetchRequest()
+        trackerRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCoreData.uuid), tracker.id as CVarArg)
+          
+        if let trackerEntity = try context.fetch(trackerRequest).first {
+            context.delete(trackerEntity)
+            categoryEntity.removeFromTracker(trackerEntity)
+            try context.save()
+            delegate?.didDeleteTracker()
+        }
     }
     
     private func getTrackerCoreData(_ tracker: Tracker, for category: TrackerCategoryCoreData) -> TrackerCoreData {

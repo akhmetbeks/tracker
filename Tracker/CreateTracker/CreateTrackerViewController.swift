@@ -32,16 +32,12 @@ final class CreateTrackerViewController: UIViewController {
     private var trackerWeekdays: [Weekday] = []
     private var selectedEmoji: String?
     private var selectedColor: UIColor?
-    var trackerCategory: TrackerCategory?
-    var onTrackerAdded: ((TrackerCategory) -> Void)?
-    var showSchedule = false
-    
+    private var categoryName: String?
+    private var trackerId: UUID?
+    private let maxLength = 38
     private var showErrorLabel = false {
-        didSet {
-            errorLabel.isHidden = !showErrorLabel
-        }
+        didSet { errorLabel.isHidden = !showErrorLabel }
     }
-    
     private var showClearButton = false {
         didSet {
             clearButton.isHidden = !showClearButton
@@ -50,7 +46,19 @@ final class CreateTrackerViewController: UIViewController {
         }
     }
     
-    private let maxLength = 38
+    var onTrackerAdded: ((TrackerCategory) -> Void)?
+    var showSchedule = false
+    func setToEdit(tracker: Tracker, of category: String) {
+        categoryName = category
+        trackerId = tracker.id
+        selectedColor = tracker.color
+        selectedEmoji = tracker.emoji
+        titleTextField.text = tracker.title
+        trackerWeekdays = tracker.weekdays
+        
+        emojiCollectionView.setEmoji(tracker.emoji)
+        colorCollectionView.setColor(tracker.color)
+    }
     
     override func viewDidLoad() {
         view.backgroundColor = .ybBlack
@@ -108,7 +116,7 @@ final class CreateTrackerViewController: UIViewController {
         cancelButton.setTitleColor(.ybRed, for: .normal)
         cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
         saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
-        showClearButton = false
+        showClearButton = (titleTextField.text?.count ?? 0) > 0
         
         buttonStackView.spacing = 8
         buttonStackView.axis = .horizontal
@@ -142,7 +150,6 @@ final class CreateTrackerViewController: UIViewController {
         setupLayout()
     }
     
-    // MARK: - Layout
     private func setupLayout() {
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -243,13 +250,13 @@ final class CreateTrackerViewController: UIViewController {
             return
         }
         
-        guard let categoryName = trackerCategory?.title else {
+        guard let categoryName else {
             showAlertError(message: L10n.alertChooseCategory)
             return
         }
         
         let tracker = Tracker(
-            id: UUID(),
+            id: trackerId ?? UUID(),
             title: title,
             color: color,
             emoji: emoji,
@@ -266,8 +273,9 @@ final class CreateTrackerViewController: UIViewController {
     @objc private func pushCategory() {
         let vc = CategoryViewController()
         vc.modalPresentationStyle = .pageSheet
+        vc.setCategory(categoryName ?? "")
         vc.onCategorySelected = { [weak self] title in
-            self?.trackerCategory = TrackerCategory(title: title, trackers: [])
+            self?.categoryName = title
             self?.buttonsTableView.reloadRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
         }
         present(UINavigationController(rootViewController: vc), animated: true)
@@ -276,8 +284,8 @@ final class CreateTrackerViewController: UIViewController {
     @objc private func pushSchedule() {
         let vc = CreateTrackerScheduleViewController()
         vc.modalPresentationStyle = .pageSheet
-        vc.weekdays = trackerWeekdays
-        vc.setWeekdays = { [weak self] weekdays in
+        vc.setWeekdays(trackerWeekdays)
+        vc.didChooseWeekdays = { [weak self] weekdays in
             self?.trackerWeekdays = weekdays
             self?.buttonsTableView.reloadRows(at: [IndexPath(row: 1, section: 0)], with: .automatic)
         }
@@ -292,21 +300,15 @@ final class CreateTrackerViewController: UIViewController {
         )
         
         let action = UIAlertAction(title: L10n.okay, style: .cancel)
-        
         alert.addAction(action)
-        
         present(alert, animated: true)
     }
 }
 
 extension CreateTrackerViewController: CreateTrackerDelegate {
-    func setEmoji(value: String) {
-        selectedEmoji = value
-    }
+    func setEmoji(value: String) { selectedEmoji = value }
     
-    func setColor(value: UIColor) {
-        selectedColor = value
-    }
+    func setColor(value: UIColor) { selectedColor = value }
 }
 
 extension CreateTrackerViewController: UITableViewDelegate {
@@ -315,13 +317,8 @@ extension CreateTrackerViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.row == 0 {
-            pushCategory()
-        }
-        
-        if indexPath.row == 1 {
-            pushSchedule()
-        }
+        if indexPath.row == 0 { pushCategory() }
+        if indexPath.row == 1 { pushSchedule() }
     }
 }
 
@@ -347,7 +344,7 @@ extension CreateTrackerViewController: UITableViewDataSource {
         
         if indexPath.row == 0 {
             createTrackerCell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.size.width, bottom: 0, right: 0)
-            createTrackerCell.setSubtitle(trackerCategory?.title ?? "")
+            createTrackerCell.setSubtitle(categoryName ?? "")
         }
         
         return createTrackerCell

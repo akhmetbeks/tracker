@@ -202,18 +202,27 @@ final class TrackerViewController: UIViewController {
         collectionView?.reloadItems(at: [indexPath])
     }
     
-    private func editTrackerOfCategory(at index: Int, category: TrackerCategory){
-        let tracker = category.trackers[index]
+    private func editTrackerOfCategory(at indexPath: IndexPath) {
+        let category = filteredCategories[indexPath.section]
+        let tracker = category.trackers[indexPath.row]
+        
         let vc = CreateTrackerViewController()
         vc.showSchedule = tracker.weekdays.count != 7
-        vc.trackerCategory = category
-        vc.onTrackerAdded = { [weak self] item in
-            try? self?.trackerStore.updateTracker(tracker, to: <#T##String#>, from: <#T##String?#>)
+        vc.setToEdit(tracker: tracker, of: category.title)
+        vc.onTrackerAdded = { [weak self] newCategory in
+            guard let tracker = newCategory.trackers.first else { return }
+            try? self?.trackerStore.updateTracker(tracker, to: newCategory.title, from: category.title)
             self?.dismiss(animated: true)
         }
         
         vc.modalPresentationStyle = .pageSheet
         present(UINavigationController(rootViewController: vc), animated: true)
+    }
+    
+    private func deleteTracker(at indexPath: IndexPath) {
+        let category = filteredCategories[indexPath.section]
+        let tracker = category.trackers[indexPath.row]
+        try? self.trackerStore.delete(tracker, from: category.title)
     }
 }
 
@@ -276,10 +285,35 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         toggleCompletion(at: indexPath)
     }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
+        return UIContextMenuConfiguration(actionProvider:  { _ in
+            guard let indexPath = indexPaths.first else { return nil }
+            
+            return UIMenu(children: [
+                UIAction(title: "Редактировать", handler: { _ in
+                    self.editTrackerOfCategory(at: indexPath)
+                }),
+                UIAction(title: "Удалить", attributes: .destructive, handler: { _ in
+                    self.deleteTracker(at: indexPath)
+                }),
+            ])
+        })
+    }
 }
 
 // MARK: - TrackerStoreDelegate
 extension TrackerViewController: TrackerStoreDelegate {
+    func didDeleteTracker() {
+        filterCategories()
+        collectionView?.reloadData()
+    }
+    
+    func didUpdateTracker() {
+        filterCategories()
+        collectionView?.reloadData()
+    }
+    
     func didInsertTracker(to categoryTitle: String) {
         filterCategories()
         
@@ -291,19 +325,6 @@ extension TrackerViewController: TrackerStoreDelegate {
                 collectionView?.reloadData()
             }
         }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemsAt indexPaths: [IndexPath], point: CGPoint) -> UIContextMenuConfiguration? {
-        return UIContextMenuConfiguration(actionProvider:  { _ in
-            return UIMenu(title: "", children: [
-                UIAction(title: "Редактировать", handler: { _ in
-                    
-                }),
-                UIAction(title: "Удалить", attributes: .destructive, handler: { _ in
-                    
-                }),
-            ])
-        })
     }
 }
 

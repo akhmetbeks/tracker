@@ -12,7 +12,9 @@ final class CategoryViewController: UIViewController {
     private let tableView = UITableView()
     private let button = TrackerButton(title: L10n.addCategory)
     private let rowHeight: CGFloat = 75
-    
+    private var tableHeightConstraint: NSLayoutConstraint?
+    private var tableBottomConstraint: NSLayoutConstraint?
+    private var selectedCategory: String?
     private let starImage: UIImageView = {
         let image = UIImageView(image: UIImage(resource: .star))
         image.translatesAutoresizingMaskIntoConstraints = false
@@ -29,10 +31,6 @@ final class CategoryViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
-    private var tableHeightConstraint: NSLayoutConstraint?
-    private var tableBottomConstraint: NSLayoutConstraint?
-    
     private var showTableView: Bool = false {
         didSet {
             starImage.isHidden = showTableView
@@ -41,6 +39,7 @@ final class CategoryViewController: UIViewController {
         }
     }
     
+    func setCategory(_ value: String) { selectedCategory = value }
     var onCategorySelected: ((String) -> Void)?
     
     override func viewDidLoad() {
@@ -59,6 +58,10 @@ final class CategoryViewController: UIViewController {
             }
         }
         viewModel.loadCategories()
+        if let selectedCategory {
+            guard let index = viewModel.categories.firstIndex(of: selectedCategory) else { return }
+            viewModel.didSelectRow(at: index)
+        }
         
         setupTableView()
         setupLayout()

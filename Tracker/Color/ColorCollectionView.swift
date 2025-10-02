@@ -8,15 +8,18 @@
 import UIKit
 
 final class ColorCollectionView: UIView {
+    private var selectedColor: UIColor?
     private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let colorList: [UIColor] = [
         .ybColor1, .ybColor2, .ybColor3, .ybColor4, .ybColor5, .ybColor6,
         .ybColor7, .ybColor8, .ybColor9, .ybColor10,.ybColor11, .ybColor12,
         .ybColor13, .ybColor14,.ybColor15, .ybColor16,.ybColor17, .ybColor18]
     
-    private var selectedColor: UIColor?
-    
     weak var delegate: CreateTrackerDelegate?
+    func setColor(_ value: UIColor) {
+        let color = colorList.first(where: { $0 == value })
+        selectedColor = color
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
