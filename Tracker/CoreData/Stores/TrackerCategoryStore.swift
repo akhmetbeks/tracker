@@ -62,7 +62,7 @@ final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
         let trackerEntity = TrackerCoreData(context: context)
         trackerEntity.uuid = tracker.id
         trackerEntity.title = tracker.title
-        trackerEntity.colorHex = tracker.hexString()
+        trackerEntity.colorLiteral = tracker.colorLiteral()
         trackerEntity.emoji = tracker.emoji
         trackerEntity.weekdays = tracker.weekdays.map { $0.name(formatter: formatter) } as NSObject
         trackerEntity.category = category

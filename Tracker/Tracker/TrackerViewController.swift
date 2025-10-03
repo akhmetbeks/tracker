@@ -127,6 +127,14 @@ final class TrackerViewController: UIViewController {
         
         selectedDate = Date()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        print("viewWillAppear")
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        print("viewWillDisappear")
+    }
        
     @objc private func addTrackerTapped() {
         let vc = TrackerAddViewController()
@@ -291,10 +299,10 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
             guard let indexPath = indexPaths.first else { return nil }
             
             return UIMenu(children: [
-                UIAction(title: "Редактировать", handler: { _ in
+                UIAction(title: L10n.edit, handler: { _ in
                     self.editTrackerOfCategory(at: indexPath)
                 }),
-                UIAction(title: "Удалить", attributes: .destructive, handler: { _ in
+                UIAction(title: L10n.delete, attributes: .destructive, handler: { _ in
                     self.deleteTracker(at: indexPath)
                 }),
             ])

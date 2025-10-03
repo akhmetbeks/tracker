@@ -37,6 +37,10 @@ internal enum L10n {
   internal static func daysCount(_ p1: Int) -> String {
     return L10n.tr("Localizable", "daysCount", p1, fallback: "%d дней")
   }
+  /// Удалить
+  internal static let delete = L10n.tr("Localizable", "delete", fallback: "Удалить")
+  /// Редактировать
+  internal static let edit = L10n.tr("Localizable", "edit", fallback: "Редактировать")
   /// Привычки и события можно объединить по смыслу
   internal static let emptyCategoriesLabel = L10n.tr("Localizable", "emptyCategoriesLabel", fallback: "Привычки и события можно объединить по смыслу")
   /// Что будем отслеживать?

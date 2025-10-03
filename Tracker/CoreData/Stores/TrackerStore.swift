@@ -46,7 +46,7 @@ final class TrackerStore: NSObject {
         guard let trackerEntity = try context.fetch(trackerRequest).first else { return }
         
         trackerEntity.title = tracker.title
-        trackerEntity.colorHex = tracker.hexString()
+        trackerEntity.colorLiteral = tracker.colorLiteral()
         trackerEntity.emoji = tracker.emoji
         trackerEntity.weekdays = tracker.weekdays.map { $0.rawValue } as NSObject
         trackerEntity.category = categoryEntity
@@ -74,7 +74,7 @@ final class TrackerStore: NSObject {
         let trackerEntity = TrackerCoreData(context: context)
         trackerEntity.uuid = tracker.id
         trackerEntity.title = tracker.title
-        trackerEntity.colorHex = tracker.hexString()
+        trackerEntity.colorLiteral = tracker.colorLiteral()
         trackerEntity.emoji = tracker.emoji
         trackerEntity.weekdays = tracker.weekdays.map { $0.rawValue } as NSObject
         trackerEntity.category = category
