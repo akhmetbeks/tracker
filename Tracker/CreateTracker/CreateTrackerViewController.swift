@@ -34,27 +34,39 @@ final class CreateTrackerViewController: UIViewController {
     private var selectedColor: UIColor?
     private var categoryName: String?
     private var trackerId: UUID?
+    private var daysCount: Int?
     private let maxLength = 38
+    private var daysCountLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+        return label
+    }()
     private var showErrorLabel = false {
         didSet { errorLabel.isHidden = !showErrorLabel }
     }
     private var showClearButton = false {
         didSet {
-            clearButton.isHidden = !showClearButton
-            saveButton.isEnabled = showClearButton
-            saveButton.backgroundColor = showClearButton ? .text : .ybGray
+            if trackerId == nil {
+                clearButton.isHidden = !showClearButton
+                saveButton.isEnabled = showClearButton
+                saveButton.backgroundColor = showClearButton ? .text : .ybGray
+            } else {
+                clearButton.isHidden = true
+                saveButton.isEnabled = true
+            }
         }
     }
     
     var onTrackerAdded: ((TrackerCategory) -> Void)?
     var showSchedule = false
-    func setToEdit(tracker: Tracker, of category: String) {
+    func setToEdit(tracker: Tracker, of category: String, count: Int) {
         categoryName = category
         trackerId = tracker.id
         selectedColor = tracker.color
         selectedEmoji = tracker.emoji
-        titleTextField.text = tracker.title
         trackerWeekdays = tracker.weekdays
+        titleTextField.text = tracker.title
+        daysCount = count
         
         emojiCollectionView.setEmoji(tracker.emoji)
         colorCollectionView.setColor(tracker.color)
@@ -62,7 +74,7 @@ final class CreateTrackerViewController: UIViewController {
     
     override func viewDidLoad() {
         view.backgroundColor = .ybBlack
-        navigationItem.title = L10n.newTracker
+        navigationItem.title = trackerId == nil ? L10n.newTracker : "Редактирование привычки"
         
         emojiCollectionView.delegate = self
         colorCollectionView.delegate = self
@@ -82,6 +94,11 @@ final class CreateTrackerViewController: UIViewController {
         titleTextField.addTarget(self, action: #selector(limitLength), for: .editingChanged)
         titleTextField.textColor = .text
         titleTextField.translatesAutoresizingMaskIntoConstraints = false
+        titleTextField.isEnabled = trackerId == nil
+        
+        daysCountLabel.text = L10n.daysCount(daysCount ?? 0)
+        daysCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        daysCountLabel.isHidden = trackerId == nil
         
         clearButton.setImage(UIImage(resource: .clear), for: .normal)
         clearButton.addTarget(self, action: #selector(clearTextField), for: .touchUpInside)
@@ -135,6 +152,7 @@ final class CreateTrackerViewController: UIViewController {
         containerView.addSubview(clearButton)
         buttonStackView.addArrangedSubview(cancelButton)
         buttonStackView.addArrangedSubview(saveButton)
+        contentView.addSubview(daysCountLabel)
         contentView.addSubview(containerView)
         contentView.addSubview(errorLabel)
         contentView.addSubview(buttonsTableView)
@@ -169,12 +187,14 @@ final class CreateTrackerViewController: UIViewController {
             buttonStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             buttonStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
             buttonStackView.heightAnchor.constraint(equalToConstant: 60),
-
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
+            
+            daysCountLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
+            daysCountLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            
             containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             containerView.heightAnchor.constraint(equalToConstant: 75),
-
+            
             titleTextField.topAnchor.constraint(equalTo: containerView.topAnchor),
             titleTextField.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
             titleTextField.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
@@ -208,6 +228,12 @@ final class CreateTrackerViewController: UIViewController {
             colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             colorCollectionView.heightAnchor.constraint(equalToConstant: 230)
        ])
+        
+        if trackerId != nil {
+            containerView.topAnchor.constraint(equalTo: daysCountLabel.bottomAnchor, constant: 40).isActive = true
+        } else {
+            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24).isActive = true
+        }
     }
     
     @objc private func limitLength(_ textField: UITextField) {
@@ -273,7 +299,7 @@ final class CreateTrackerViewController: UIViewController {
     @objc private func pushCategory() {
         let vc = CategoryViewController()
         vc.modalPresentationStyle = .pageSheet
-        vc.setCategory(categoryName ?? "")
+        vc.setCategory(categoryName)
         vc.onCategorySelected = { [weak self] title in
             self?.categoryName = title
             self?.buttonsTableView.reloadRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)

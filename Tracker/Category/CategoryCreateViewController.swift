@@ -38,6 +38,7 @@ final class CategoryCreateViewController: UIViewController {
         button.addTarget(self, action: #selector(createTapped), for: .touchUpInside)
         button.isEnabled = false
         
+        
         containerView.addSubview(textField)
         
         view.addSubview(containerView)

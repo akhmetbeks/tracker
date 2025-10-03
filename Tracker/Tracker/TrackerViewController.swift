@@ -127,14 +127,6 @@ final class TrackerViewController: UIViewController {
         
         selectedDate = Date()
     }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        print("viewWillAppear")
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        print("viewWillDisappear")
-    }
        
     @objc private func addTrackerTapped() {
         let vc = TrackerAddViewController()
@@ -215,8 +207,9 @@ final class TrackerViewController: UIViewController {
         let tracker = category.trackers[indexPath.row]
         
         let vc = CreateTrackerViewController()
+        let count = recordStore.getCount(for: tracker.id)
         vc.showSchedule = tracker.weekdays.count != 7
-        vc.setToEdit(tracker: tracker, of: category.title)
+        vc.setToEdit(tracker: tracker, of: category.title, count: count)
         vc.onTrackerAdded = { [weak self] newCategory in
             guard let tracker = newCategory.trackers.first else { return }
             try? self?.trackerStore.updateTracker(tracker, to: newCategory.title, from: category.title)
