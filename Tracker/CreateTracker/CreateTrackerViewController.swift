@@ -46,14 +46,9 @@ final class CreateTrackerViewController: UIViewController {
     }
     private var showClearButton = false {
         didSet {
-            if trackerId == nil {
-                clearButton.isHidden = !showClearButton
-                saveButton.isEnabled = showClearButton
-                saveButton.backgroundColor = showClearButton ? .text : .ybGray
-            } else {
-                clearButton.isHidden = true
-                saveButton.isEnabled = true
-            }
+            clearButton.isHidden = !showClearButton
+            saveButton.isEnabled = showClearButton
+            saveButton.backgroundColor = showClearButton ? .text : .ybGray
         }
     }
     
@@ -94,7 +89,6 @@ final class CreateTrackerViewController: UIViewController {
         titleTextField.addTarget(self, action: #selector(limitLength), for: .editingChanged)
         titleTextField.textColor = .text
         titleTextField.translatesAutoresizingMaskIntoConstraints = false
-        titleTextField.isEnabled = trackerId == nil
         
         daysCountLabel.text = L10n.daysCount(daysCount ?? 0)
         daysCountLabel.translatesAutoresizingMaskIntoConstraints = false

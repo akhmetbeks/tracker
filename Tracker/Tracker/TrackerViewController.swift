@@ -116,11 +116,11 @@ final class TrackerViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        analytics.sendEvent(event: AnalyticsEventEnum.open.rawValue, screen: AnalyticsScreenEnum.main.name, item: nil)
+        analytics.sendEvent(.open, screen: .main, item: nil)
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-        analytics.sendEvent(event: AnalyticsEventEnum.close.rawValue, screen: AnalyticsScreenEnum.main.name, item: nil)
+        analytics.sendEvent(.close, screen: .main, item: nil)
     }
     
     override func viewDidLayoutSubviews() {
@@ -132,10 +132,7 @@ final class TrackerViewController: UIViewController {
     }
        
     @objc private func addTrackerTapped() {
-        analytics.sendEvent(
-            event: AnalyticsEventEnum.click.rawValue,
-            screen: AnalyticsScreenEnum.main.name,
-            item: AnalyticsItemEnum.addTrack.name)
+        analytics.sendEvent(.click, screen: .main, item: .addTrack)
         
         let vc = TrackerAddViewController()
         
@@ -147,10 +144,8 @@ final class TrackerViewController: UIViewController {
     }
     
     @objc private func filterTapped() {
-        analytics.sendEvent(
-            event: AnalyticsEventEnum.click.rawValue,
-            screen: AnalyticsScreenEnum.main.name,
-            item: AnalyticsItemEnum.filter.name)
+        analytics.sendEvent(.click, screen: .main, item: .filter)
+        
         let vc = FiltersViewController()
         vc.delegate = self
         vc.modalPresentationStyle = .pageSheet
@@ -194,10 +189,7 @@ final class TrackerViewController: UIViewController {
     }
     
     private func editTrackerOfCategory(at indexPath: IndexPath) {
-        analytics.sendEvent(
-            event: AnalyticsEventEnum.click.rawValue,
-            screen: AnalyticsScreenEnum.main.name,
-            item: AnalyticsItemEnum.edit.name)
+        analytics.sendEvent(.click, screen: .main, item: .edit)
         
         let category = viewModel.filteredCategories[indexPath.section]
         let tracker = category.trackers[indexPath.row]
@@ -216,10 +208,7 @@ final class TrackerViewController: UIViewController {
     }
     
     private func showActionSheet(at indexPath: IndexPath) {
-        analytics.sendEvent(
-            event: AnalyticsEventEnum.click.rawValue,
-            screen: AnalyticsScreenEnum.main.name,
-            item: AnalyticsItemEnum.delete.name)
+        analytics.sendEvent(.click, screen: .main, item: .delete)
         
         let alert = UIAlertController(title: "", message: L10n.deleteActionSheetMessage, preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: L10n.delete, style: .destructive, handler: { [weak self] _ in
@@ -285,10 +274,7 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        analytics.sendEvent(
-            event: AnalyticsEventEnum.click.rawValue,
-            screen: AnalyticsScreenEnum.main.name,
-            item: AnalyticsItemEnum.track.name)
+        analytics.sendEvent(.click, screen: .main, item: .track)
         viewModel.toggleComplete(at: indexPath)
     }
     

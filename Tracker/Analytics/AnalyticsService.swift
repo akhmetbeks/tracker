@@ -7,7 +7,7 @@
 import AppMetricaCore
 
 protocol AnalyticsServiceProtocol {
-    func sendEvent(event: String, screen: String, item: String?)
+    func sendEvent(_ event: Analytics.Event, screen: Analytics.Screen, item: Analytics.Item?)
 }
 
 final class AppMetricaService: AnalyticsServiceProtocol {
@@ -19,10 +19,15 @@ final class AppMetricaService: AnalyticsServiceProtocol {
         AppMetrica.activate(with: configuration)
     }
     
-    func sendEvent(event: String, screen: String, item: String?) {
-        var params: [AnyHashable: Any] = [:]
-        params["screen"] = screen
-        if item != nil { params["item"] = item }
-        AppMetrica.reportEvent(name: event, parameters: params)
+    func sendEvent(_ event: Analytics.Event, screen: Analytics.Screen, item: Analytics.Item? = nil) {
+        var parameters: [String: String] = [
+            "event": event.rawValue,
+            "screen": screen.rawValue
+        ]
+        if let item = item {
+            parameters["item"] = item.rawValue
+        }
+        // Отправляем в AppMetrica (пример)
+        AppMetrica.reportEvent(name: "ui_event", parameters: parameters)
     }
 }

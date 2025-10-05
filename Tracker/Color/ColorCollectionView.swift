@@ -16,10 +16,6 @@ final class ColorCollectionView: UIView {
         .ybColor13, .ybColor14,.ybColor15, .ybColor16,.ybColor17, .ybColor18]
     
     weak var delegate: CreateTrackerDelegate?
-    func setColor(_ value: UIColor) {
-        let color = colorList.first(where: { $0 == value })
-        selectedColor = color
-    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -46,6 +42,11 @@ final class ColorCollectionView: UIView {
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -24)
         ])
+    }
+    
+    func setColor(_ value: UIColor) {
+        let color = colorList.first(where: { $0 == value })
+        selectedColor = color
     }
 }
 

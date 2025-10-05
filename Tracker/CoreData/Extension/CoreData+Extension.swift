@@ -39,11 +39,7 @@ extension TrackerCoreData {
     }
     
     func fromData(_ data: Data) -> UIColor? {
-        if #available(iOS 12.0, *) {
-            return try? NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: data)
-        } else {
-            return try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? UIColor
-        }
+        return try? NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: data)
     }
 }
 

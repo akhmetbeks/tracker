@@ -20,6 +20,7 @@ final class FiltersViewController: UIViewController {
     weak var delegate: FilterViewDelegate?
     
     override func viewDidLoad() {
+        view.backgroundColor = .ybBlack
         navigationItem.title = L10n.filters
         
         tableView.delegate = self

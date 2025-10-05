@@ -10,17 +10,16 @@ import CoreData
 import AppMetricaCore
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
+final class AppDelegate: UIResponder, UIApplicationDelegate {
     
     let storeContainer = StoreContainer()
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        AppMetricaService.shared.activate(apiKey: "4f59abed-6677-475a-9faa-c4d99ed5900b")
+        AppMetricaService.shared.activate(apiKey: Constants.appMetricaAPIKey)
         return true
     }
 
     // MARK: UISceneSession Lifecycle
-
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         // Called when a new scene session is being created.
         // Use this method to select a configuration to create the new scene with.
