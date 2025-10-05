@@ -48,3 +48,14 @@
 "onboardingButton" = "That’s what I call technology!";
 "edit" = "Edit";
 "delete" = "Delete";
+"deleteActionSheetMessage" = "Are you sure to delete the tracker?";
+"filters" = "Filters";
+"filterAll" = "All trackers";
+"filterForToday" = "Trackers for today";
+"filterCompleted" = "Completed";
+"filterUncompleted" = "Uncompleted";
+"emptyStatistics" = "There is nothing to analyze yet";
+"totalActiveDays" = "Total Active Days";
+"totalCompleted" = "Trackers Completed";
+"bestDay" = "Best Day";
+"average" = "Average Trackers per Day";

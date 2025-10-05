@@ -41,5 +41,9 @@ final class CategoryViewModel {
         onDataFetched?()
     }
     
+    func setSelectedIndex(at index: Int) {
+        selectedIndex = index
+    }
+    
     func isSelected(at index: Int) -> Bool { selectedIndex == index }
 }

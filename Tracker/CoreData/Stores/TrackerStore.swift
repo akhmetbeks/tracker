@@ -62,11 +62,19 @@ final class TrackerStore: NSObject {
         let trackerRequest = TrackerCoreData.fetchRequest()
         trackerRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCoreData.uuid), tracker.id as CVarArg)
           
-        if let trackerEntity = try context.fetch(trackerRequest).first {
-            context.delete(trackerEntity)
-            categoryEntity.removeFromTracker(trackerEntity)
-            try context.save()
-            delegate?.didDeleteTracker()
+        do {
+            if let trackerEntity = try context.fetch(trackerRequest).first {
+                context.delete(trackerEntity)
+                categoryEntity.removeFromTracker(trackerEntity)
+                do {
+                    try context.save()
+                    delegate?.didDeleteTracker()
+                } catch {
+                    print(error.localizedDescription)
+                }
+            }
+        } catch {
+            print("FETCH DELETE: \(error.localizedDescription)")
         }
     }
     

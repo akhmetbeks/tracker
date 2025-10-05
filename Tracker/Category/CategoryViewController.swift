@@ -1,5 +1,5 @@
 //
-//  CreateTrackerCategoryViewController.swift
+//  CategoryViewController.swift
 //  Tracker
 //
 //  Created by Sultan Akhmetbek on 25.09.2025.
@@ -49,18 +49,18 @@ final class CategoryViewController: UIViewController {
         button.addTarget(self, action: #selector(navigateCreatePage), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         
+        if let selectedCategory,
+           let index = viewModel.categories.firstIndex(of: selectedCategory) {
+            viewModel.didSelectRow(at: index)
+        }
+        
         viewModel.onDataFetched = { [weak self] in
             guard let self else { return }
             self.showTableView = self.viewModel.isNotEmpty()
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
-            }
+            self.tableView.reloadData()
+            self.updateTableHeight()
         }
         viewModel.loadCategories()
-        if let selectedCategory {
-            guard let index = viewModel.categories.firstIndex(of: selectedCategory) else { return }
-            viewModel.didSelectRow(at: index)
-        }
         
         setupTableView()
         setupLayout()

@@ -7,13 +7,15 @@
 
 import UIKit
 import CoreData
+import AppMetricaCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    
     let storeContainer = StoreContainer()
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        AppMetricaService.shared.activate(apiKey: "4f59abed-6677-475a-9faa-c4d99ed5900b")
         return true
     }
 

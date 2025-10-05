@@ -25,6 +25,10 @@ internal enum L10n {
   internal static let alertChooseWeekday = L10n.tr("Localizable", "alertChooseWeekday", fallback: "Нужно выбрать хотя бы один день недели")
   /// Заполните название
   internal static let alertEnterTrackerName = L10n.tr("Localizable", "alertEnterTrackerName", fallback: "Заполните название")
+  /// Среднее количество трекеров в день
+  internal static let average = L10n.tr("Localizable", "average", fallback: "Среднее количество трекеров в день")
+  /// Лучший день
+  internal static let bestDay = L10n.tr("Localizable", "bestDay", fallback: "Лучший день")
   /// Отменить
   internal static let cancel = L10n.tr("Localizable", "cancel", fallback: "Отменить")
   /// Категория
@@ -39,10 +43,14 @@ internal enum L10n {
   }
   /// Удалить
   internal static let delete = L10n.tr("Localizable", "delete", fallback: "Удалить")
+  /// Уверены что хотите удалить трекер?
+  internal static let deleteActionSheetMessage = L10n.tr("Localizable", "deleteActionSheetMessage", fallback: "Уверены что хотите удалить трекер?")
   /// Редактировать
   internal static let edit = L10n.tr("Localizable", "edit", fallback: "Редактировать")
   /// Привычки и события можно объединить по смыслу
   internal static let emptyCategoriesLabel = L10n.tr("Localizable", "emptyCategoriesLabel", fallback: "Привычки и события можно объединить по смыслу")
+  /// Анализировать пока нечего
+  internal static let emptyStatistics = L10n.tr("Localizable", "emptyStatistics", fallback: "Анализировать пока нечего")
   /// Что будем отслеживать?
   internal static let emptyTrackerLabel = L10n.tr("Localizable", "emptyTrackerLabel", fallback: "Что будем отслеживать?")
   /// Введите название категории
@@ -61,6 +69,16 @@ internal enum L10n {
   internal static let errorTrackerName = L10n.tr("Localizable", "errorTrackerName", fallback: "Ограничение 38 символов")
   /// Каждый день
   internal static let everyday = L10n.tr("Localizable", "everyday", fallback: "Каждый день")
+  /// Все трекеры
+  internal static let filterAll = L10n.tr("Localizable", "filterAll", fallback: "Все трекеры")
+  /// Завершенные
+  internal static let filterCompleted = L10n.tr("Localizable", "filterCompleted", fallback: "Завершенные")
+  /// Трекеры на сегодня
+  internal static let filterForToday = L10n.tr("Localizable", "filterForToday", fallback: "Трекеры на сегодня")
+  /// Фильтры
+  internal static let filters = L10n.tr("Localizable", "filters", fallback: "Фильтры")
+  /// Не завершенные
+  internal static let filterUncompleted = L10n.tr("Localizable", "filterUncompleted", fallback: "Не завершенные")
   /// Привычка
   internal static let habit = L10n.tr("Localizable", "habit", fallback: "Привычка")
   /// Нерегулярное событие
@@ -87,6 +105,10 @@ internal enum L10n {
   internal static let search = L10n.tr("Localizable", "search", fallback: "Поиск")
   /// Статистика
   internal static let statistics = L10n.tr("Localizable", "statistics", fallback: "Статистика")
+  /// Общее количество дней активности
+  internal static let totalActiveDays = L10n.tr("Localizable", "totalActiveDays", fallback: "Общее количество дней активности")
+  /// Трекеров завершено
+  internal static let totalCompleted = L10n.tr("Localizable", "totalCompleted", fallback: "Трекеров завершено")
   /// Трекеры
   internal static let trackers = L10n.tr("Localizable", "trackers", fallback: "Трекеры")
   /// Пятница
