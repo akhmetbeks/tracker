@@ -9,7 +9,7 @@ import UIKit
 final class CategoryCreateViewController: UIViewController {
     private let containerView = UIView()
     private let textField = UITextField()
-    private let button = TrackerButton(title: "Готово")
+    private let button = TrackerButton(title: L10n.ready)
     
     private var isEnabled = false {
         didSet {
@@ -21,7 +21,7 @@ final class CategoryCreateViewController: UIViewController {
     
     override func viewDidLoad() {
         view.backgroundColor = .ybBlack
-        navigationItem.title = "Новая категория"
+        navigationItem.title = L10n.newCategory
         
         containerView.backgroundColor = .background
         containerView.layer.cornerRadius = 16
@@ -30,13 +30,14 @@ final class CategoryCreateViewController: UIViewController {
         
         textField.delegate = self
         textField.returnKeyType = .done
-        textField.placeholder = "Введите название категории"
+        textField.placeholder = L10n.emptyCategoriesLabel
         textField.addTarget(self, action: #selector(limitLength), for: .editingChanged)
         textField.textColor = .text
         textField.translatesAutoresizingMaskIntoConstraints = false
         
         button.addTarget(self, action: #selector(createTapped), for: .touchUpInside)
         button.isEnabled = false
+        
         
         containerView.addSubview(textField)
         
@@ -61,14 +62,12 @@ final class CategoryCreateViewController: UIViewController {
     }
     
     @objc private func limitLength(_ textField: UITextField) {
-        if let text = textField.text {
+        guard let text = textField.text else { return }
             
-            enableButton(count: text.count)
-            
-            let isExceeded = text.count > 32
-            
-            if isExceeded { textField.text = String(text.prefix(32)) }
-        }
+        enableButton(count: text.count)
+        
+        let isExceeded = text.count > 32
+        if isExceeded { textField.text = String(text.prefix(32)) }
     }
     
     @objc private func createTapped() {

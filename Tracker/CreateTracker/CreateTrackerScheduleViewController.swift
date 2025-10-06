@@ -9,17 +9,18 @@ import UIKit
 
 final class CreateTrackerScheduleViewController: UIViewController {
     private let tableView = UITableView()
-    private let button = TrackerButton(title: "Готово")
+    private let button = TrackerButton(title: L10n.ready)
     
     private let rowHeight: CGFloat = 75
-    private let numberOfRows = CGFloat(WeekdaysEnum.allCases.count)
+    private let numberOfRows = CGFloat(Weekday.allCases.count)
     
-    var weekdays: [WeekdaysEnum] = []
-    var setWeekdays: (([WeekdaysEnum]) -> Void)?
+    private var weekdays: [Weekday] = []
+    func setWeekdays(_ value: [Weekday]) { weekdays = value }
+    var didChooseWeekdays: (([Weekday]) -> Void)?
     
     override func viewDidLoad() {
         view.backgroundColor = .ybBlack
-        navigationItem.title = "Расписание"
+        navigationItem.title = L10n.schedule
         
         setupTableView()
         
@@ -63,7 +64,7 @@ final class CreateTrackerScheduleViewController: UIViewController {
     }
     
     @objc private func closePage() {
-        setWeekdays?(weekdays)
+        didChooseWeekdays?(weekdays)
         dismiss(animated: true)
     }
 }
@@ -76,7 +77,7 @@ extension CreateTrackerScheduleViewController: UITableViewDelegate {
 
 extension CreateTrackerScheduleViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        WeekdaysEnum.allCases.count
+        Weekday.allCases.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -84,8 +85,8 @@ extension CreateTrackerScheduleViewController: UITableViewDataSource {
         
         guard let cell = cell as? CreateWeekDayCell else { return UITableViewCell() }
         
-        cell.setWeekday(WeekdaysEnum.allCases[indexPath.row])
-        cell.isOn = weekdays.contains(WeekdaysEnum.allCases[indexPath.row])
+        cell.setWeekday(Weekday.allCases[indexPath.row])
+        cell.isOn = weekdays.contains(Weekday.allCases[indexPath.row])
         cell.onToggle = { [weak self] day in
             guard let self else { return }
             
@@ -96,7 +97,7 @@ extension CreateTrackerScheduleViewController: UITableViewDataSource {
             }
         }
                 
-        if indexPath.row == WeekdaysEnum.allCases.count - 1 {
+        if indexPath.row == Weekday.allCases.count - 1 {
             cell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.size.width, bottom: 0, right: 0)
         }
         

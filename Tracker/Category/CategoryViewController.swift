@@ -1,5 +1,5 @@
 //
-//  CreateTrackerCategoryViewController.swift
+//  CategoryViewController.swift
 //  Tracker
 //
 //  Created by Sultan Akhmetbek on 25.09.2025.
@@ -10,9 +10,11 @@ import UIKit
 final class CategoryViewController: UIViewController {
     private let viewModel = CategoryViewModel()
     private let tableView = UITableView()
-    private let button = TrackerButton(title: "Добавить категорию")
+    private let button = TrackerButton(title: L10n.addCategory)
     private let rowHeight: CGFloat = 75
-    
+    private var tableHeightConstraint: NSLayoutConstraint?
+    private var tableBottomConstraint: NSLayoutConstraint?
+    private var selectedCategory: String?
     private let starImage: UIImageView = {
         let image = UIImageView(image: UIImage(resource: .star))
         image.translatesAutoresizingMaskIntoConstraints = false
@@ -20,7 +22,7 @@ final class CategoryViewController: UIViewController {
     }()
     private let emptyLabel: UILabel = {
         let label = UILabel()
-        label.text = "Привычки и события можно объединить по смыслу"
+        label.text = L10n.emptyCategoriesLabel
         label.font = .ypMedium
         label.textColor = .text
         label.lineBreakMode = .byWordWrapping
@@ -29,10 +31,6 @@ final class CategoryViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
-    private var tableHeightConstraint: NSLayoutConstraint?
-    private var tableBottomConstraint: NSLayoutConstraint?
-    
     private var showTableView: Bool = false {
         didSet {
             starImage.isHidden = showTableView
@@ -41,27 +39,36 @@ final class CategoryViewController: UIViewController {
         }
     }
     
+    func setCategory(_ value: String?) { selectedCategory = value }
     var onCategorySelected: ((String) -> Void)?
     
     override func viewDidLoad() {
         view.backgroundColor = .ybBlack
-        navigationItem.title = "Категория"
+        navigationItem.title = L10n.category
         
         button.addTarget(self, action: #selector(navigateCreatePage), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         
+        if let selectedCategory,
+           let index = viewModel.categories.firstIndex(of: selectedCategory) {
+            viewModel.didSelectRow(at: index)
+        }
+        
         viewModel.onDataFetched = { [weak self] in
             guard let self else { return }
             self.showTableView = self.viewModel.isNotEmpty()
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
-                self.updateTableHeight()
-            }
+            self.tableView.reloadData()
+            self.updateTableHeight()
         }
         viewModel.loadCategories()
         
         setupTableView()
         setupLayout()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        updateTableHeight()
     }
     
     private func setupTableView() {
@@ -92,7 +99,7 @@ final class CategoryViewController: UIViewController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
             starImage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            starImage.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            starImage.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -40),
             emptyLabel.topAnchor.constraint(equalTo: starImage.bottomAnchor, constant: 8),
             emptyLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             emptyLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -101,23 +108,27 @@ final class CategoryViewController: UIViewController {
             button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             button.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             button.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            button.heightAnchor.constraint(equalToConstant: 60),
         ])
+        
+        tableBottomConstraint = tableView.bottomAnchor.constraint(equalTo: button.topAnchor, constant: -16)
+        tableBottomConstraint?.priority = .defaultLow
+        tableBottomConstraint?.isActive = true
     }
     
     private func updateTableHeight() {
         tableHeightConstraint?.isActive = false
-        tableBottomConstraint?.isActive = false
         
         let rows = viewModel.numberOfRows()
         let totalHeight = rowHeight * CGFloat(rows)
         let maxHeight = view.bounds.height - 150
         
-        if totalHeight < maxHeight && viewModel.isNotEmpty() {
+        if totalHeight < maxHeight {
             tableHeightConstraint = tableView.heightAnchor.constraint(equalToConstant: totalHeight)
+            tableHeightConstraint?.priority = .required
             tableHeightConstraint?.isActive = true
         } else {
-            tableBottomConstraint = tableView.bottomAnchor.constraint(equalTo: button.topAnchor, constant: -16)
-            tableBottomConstraint?.isActive = true
+            print("lol")
         }
     }
     
@@ -140,6 +151,7 @@ extension CategoryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         viewModel.didSelectRow(at: indexPath.row)
         onCategorySelected?(viewModel.titleForRow(at: indexPath.row))
+        dismiss(animated: true)
     }
 }
 

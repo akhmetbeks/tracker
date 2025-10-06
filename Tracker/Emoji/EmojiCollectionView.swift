@@ -8,13 +8,16 @@
 import UIKit
 
 final class EmojiCollectionView: UIView {
+    private var selectedEmoji: String?
     private let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
     private let emojiList = ["🙂", "😻", "🌺", "🐶", "❤️", "😱",
                              "😇", "😡", "🥶", "🤔", "🙌", "🍔",
                              "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
-    private var selectedEmoji: String?
     
     weak var delegate: CreateTrackerDelegate?
+    func setEmoji(_ value: String) {
+        selectedEmoji = value
+    }
     
     override init(frame: CGRect) {
         super.init(frame: frame)

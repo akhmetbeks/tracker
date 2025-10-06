@@ -20,28 +20,30 @@ final class CreateTrackerViewController: UIViewController {
     private let clearButton = UIButton()
     private let errorLabel = UILabel()
     private let cancelButton = UIButton()
-    private let saveButton = TrackerButton(title: "Сохранить")
+    private let saveButton = TrackerButton(title: L10n.save)
     private let buttonStackView = UIStackView()
     private let buttonsTableView = UITableView(frame: .zero, style: .plain)
-    private let buttonTitles = ["Категория", "Расписание"]
+    private let buttonTitles = [L10n.category, L10n.schedule]
     private let emojiLabel = UILabel()
     private let emojiCollectionView = EmojiCollectionView()
     private let colorLabel = UILabel()
     private let colorCollectionView = ColorCollectionView()
-    
-    private var trackerCategory: TrackerCategory?
-    private var trackerWeekdays: [WeekdaysEnum] = []
+    private let formatter = DateFormatter()
+    private var trackerWeekdays: [Weekday] = []
     private var selectedEmoji: String?
     private var selectedColor: UIColor?
-    var onTrackerAdded: ((TrackerCategory) -> Void)?
-    var showSchedule = false
-    
+    private var categoryName: String?
+    private var trackerId: UUID?
+    private var daysCount: Int?
+    private let maxLength = 38
+    private var daysCountLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+        return label
+    }()
     private var showErrorLabel = false {
-        didSet {
-            errorLabel.isHidden = !showErrorLabel
-        }
+        didSet { errorLabel.isHidden = !showErrorLabel }
     }
-    
     private var showClearButton = false {
         didSet {
             clearButton.isHidden = !showClearButton
@@ -50,11 +52,24 @@ final class CreateTrackerViewController: UIViewController {
         }
     }
     
-    private let maxLength = 38
+    var onTrackerAdded: ((TrackerCategory) -> Void)?
+    var showSchedule = false
+    func setToEdit(tracker: Tracker, of category: String, count: Int) {
+        categoryName = category
+        trackerId = tracker.id
+        selectedColor = tracker.color
+        selectedEmoji = tracker.emoji
+        trackerWeekdays = tracker.weekdays
+        titleTextField.text = tracker.title
+        daysCount = count
+        
+        emojiCollectionView.setEmoji(tracker.emoji)
+        colorCollectionView.setColor(tracker.color)
+    }
     
     override func viewDidLoad() {
         view.backgroundColor = .ybBlack
-        navigationItem.title = "Новая привычка"
+        navigationItem.title = trackerId == nil ? L10n.newTracker : "Редактирование привычки"
         
         emojiCollectionView.delegate = self
         colorCollectionView.delegate = self
@@ -70,16 +85,20 @@ final class CreateTrackerViewController: UIViewController {
         
         titleTextField.delegate = self
         titleTextField.returnKeyType = .done
-        titleTextField.placeholder = "Введите название трекера"
+        titleTextField.placeholder = L10n.enterTrackerName
         titleTextField.addTarget(self, action: #selector(limitLength), for: .editingChanged)
         titleTextField.textColor = .text
         titleTextField.translatesAutoresizingMaskIntoConstraints = false
+        
+        daysCountLabel.text = L10n.daysCount(daysCount ?? 0)
+        daysCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        daysCountLabel.isHidden = trackerId == nil
         
         clearButton.setImage(UIImage(resource: .clear), for: .normal)
         clearButton.addTarget(self, action: #selector(clearTextField), for: .touchUpInside)
         clearButton.translatesAutoresizingMaskIntoConstraints = false
         
-        errorLabel.text = "Ограничение 38 символов"
+        errorLabel.text = L10n.errorTrackerName
         errorLabel.textColor = .ybRed
         errorLabel.font = .ypRegular
         errorLabel.isHidden = true
@@ -103,12 +122,12 @@ final class CreateTrackerViewController: UIViewController {
         cancelButton.layer.masksToBounds = true
         cancelButton.layer.borderColor = UIColor.ybRed.cgColor
         cancelButton.layer.borderWidth = 1
-        cancelButton.setTitle("Отменить", for: .normal)
+        cancelButton.setTitle(L10n.cancel, for: .normal)
         cancelButton.titleLabel?.font = .ypRegular
         cancelButton.setTitleColor(.ybRed, for: .normal)
         cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
         saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
-        showClearButton = false
+        showClearButton = (titleTextField.text?.count ?? 0) > 0
         
         buttonStackView.spacing = 8
         buttonStackView.axis = .horizontal
@@ -119,7 +138,7 @@ final class CreateTrackerViewController: UIViewController {
         emojiLabel.translatesAutoresizingMaskIntoConstraints = false
         emojiLabel.font = .systemFont(ofSize: 19, weight: .bold)
         
-        colorLabel.text = "Цвет"
+        colorLabel.text = L10n.color
         colorLabel.translatesAutoresizingMaskIntoConstraints = false
         colorLabel.font = .systemFont(ofSize: 19, weight: .bold)
         
@@ -127,6 +146,7 @@ final class CreateTrackerViewController: UIViewController {
         containerView.addSubview(clearButton)
         buttonStackView.addArrangedSubview(cancelButton)
         buttonStackView.addArrangedSubview(saveButton)
+        contentView.addSubview(daysCountLabel)
         contentView.addSubview(containerView)
         contentView.addSubview(errorLabel)
         contentView.addSubview(buttonsTableView)
@@ -142,7 +162,6 @@ final class CreateTrackerViewController: UIViewController {
         setupLayout()
     }
     
-    // MARK: - Layout
     private func setupLayout() {
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -162,12 +181,14 @@ final class CreateTrackerViewController: UIViewController {
             buttonStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             buttonStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
             buttonStackView.heightAnchor.constraint(equalToConstant: 60),
-
-            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
+            
+            daysCountLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
+            daysCountLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            
             containerView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             containerView.heightAnchor.constraint(equalToConstant: 75),
-
+            
             titleTextField.topAnchor.constraint(equalTo: containerView.topAnchor),
             titleTextField.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
             titleTextField.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
@@ -201,6 +222,12 @@ final class CreateTrackerViewController: UIViewController {
             colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             colorCollectionView.heightAnchor.constraint(equalToConstant: 230)
        ])
+        
+        if trackerId != nil {
+            containerView.topAnchor.constraint(equalTo: daysCountLabel.bottomAnchor, constant: 40).isActive = true
+        } else {
+            containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24).isActive = true
+        }
     }
     
     @objc private func limitLength(_ textField: UITextField) {
@@ -224,36 +251,36 @@ final class CreateTrackerViewController: UIViewController {
     
     @objc private func saveTapped() {
         guard let emoji = selectedEmoji else {
-            showAlertError(message: "Выберите emoji")
+            showAlertError(message: L10n.alertChooseEmoji)
             return
         }
         
         guard let color = selectedColor else {
-            showAlertError(message: "Выберите цвет")
+            showAlertError(message: L10n.alertChooseColor)
             return
         }
         
         if trackerWeekdays.isEmpty && showSchedule {
-            showAlertError(message: "Нужно выбрать хотя бы один день недели")
+            showAlertError(message: L10n.alertChooseWeekday)
             return
         }
         
         guard let title = titleTextField.text else {
-            showAlertError(message: "Заполните название")
+            showAlertError(message: L10n.alertEnterTrackerName)
             return
         }
         
-        guard let categoryName = trackerCategory?.title else {
-            showAlertError(message: "Нужно выбрать категорию")
+        guard let categoryName else {
+            showAlertError(message: L10n.alertChooseCategory)
             return
         }
         
         let tracker = Tracker(
-            id: UUID(),
+            id: trackerId ?? UUID(),
             title: title,
             color: color,
             emoji: emoji,
-            weekdays: showSchedule ? trackerWeekdays : Array(WeekdaysEnum.allCases)
+            weekdays: showSchedule ? trackerWeekdays : Array(Weekday.allCases)
         )
         
         let category = TrackerCategory(title: categoryName, trackers: [tracker])
@@ -266,8 +293,9 @@ final class CreateTrackerViewController: UIViewController {
     @objc private func pushCategory() {
         let vc = CategoryViewController()
         vc.modalPresentationStyle = .pageSheet
+        vc.setCategory(categoryName)
         vc.onCategorySelected = { [weak self] title in
-            self?.trackerCategory = TrackerCategory(title: title, trackers: [])
+            self?.categoryName = title
             self?.buttonsTableView.reloadRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
         }
         present(UINavigationController(rootViewController: vc), animated: true)
@@ -276,8 +304,8 @@ final class CreateTrackerViewController: UIViewController {
     @objc private func pushSchedule() {
         let vc = CreateTrackerScheduleViewController()
         vc.modalPresentationStyle = .pageSheet
-        vc.weekdays = trackerWeekdays
-        vc.setWeekdays = { [weak self] weekdays in
+        vc.setWeekdays(trackerWeekdays)
+        vc.didChooseWeekdays = { [weak self] weekdays in
             self?.trackerWeekdays = weekdays
             self?.buttonsTableView.reloadRows(at: [IndexPath(row: 1, section: 0)], with: .automatic)
         }
@@ -291,22 +319,16 @@ final class CreateTrackerViewController: UIViewController {
             preferredStyle: .alert
         )
         
-        let action = UIAlertAction(title: "Окей", style: .cancel)
-        
+        let action = UIAlertAction(title: L10n.okay, style: .cancel)
         alert.addAction(action)
-        
         present(alert, animated: true)
     }
 }
 
 extension CreateTrackerViewController: CreateTrackerDelegate {
-    func setEmoji(value: String) {
-        selectedEmoji = value
-    }
+    func setEmoji(value: String) { selectedEmoji = value }
     
-    func setColor(value: UIColor) {
-        selectedColor = value
-    }
+    func setColor(value: UIColor) { selectedColor = value }
 }
 
 extension CreateTrackerViewController: UITableViewDelegate {
@@ -315,13 +337,8 @@ extension CreateTrackerViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.row == 0 {
-            pushCategory()
-        }
-        
-        if indexPath.row == 1 {
-            pushSchedule()
-        }
+        if indexPath.row == 0 { pushCategory() }
+        if indexPath.row == 1 { pushSchedule() }
     }
 }
 
@@ -340,15 +357,14 @@ extension CreateTrackerViewController: UITableViewDataSource {
         
         if indexPath.row == 1 {
             createTrackerCell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.size.width, bottom: 0, right: 0)
-            
-            var weekdaysSubtitle = self.trackerWeekdays.compactMap(\.shortTitle).joined(separator: ", ")
-            if trackerWeekdays.count == 7 { weekdaysSubtitle = "Каждый день" }
-            createTrackerCell.setSubtitle(weekdaysSubtitle)
+            var weekdayList = self.trackerWeekdays.map({ $0.shortName(formatter: formatter) }).joined(separator: ", ")
+            if trackerWeekdays.count == 7 { weekdayList = L10n.everyday }
+            createTrackerCell.setSubtitle(weekdayList)
         }
         
         if indexPath.row == 0 {
             createTrackerCell.separatorInset = UIEdgeInsets(top: 0, left: cell.bounds.size.width, bottom: 0, right: 0)
-            createTrackerCell.setSubtitle(trackerCategory?.title ?? "")
+            createTrackerCell.setSubtitle(categoryName ?? "")
         }
         
         return createTrackerCell

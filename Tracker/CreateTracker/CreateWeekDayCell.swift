@@ -11,17 +11,18 @@ final class CreateWeekDayCell: UITableViewCell {
     private let label = UILabel()
     private let switcher = UISwitch()
     private let stack = UIStackView()
+    private let formatter = DateFormatter()
     
     var isOn: Bool = false {
         didSet {
             switcher.isOn = isOn
         }
     }
-    var onToggle: ((WeekdaysEnum) -> Void)?
+    var onToggle: ((Weekday) -> Void)?
     
     static let identifier = "CreateWeekDayCell"
     
-    var weekday: WeekdaysEnum?
+    var weekday: Weekday?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -61,9 +62,9 @@ final class CreateWeekDayCell: UITableViewCell {
         ])
     }
         
-    func setWeekday(_ weekday: WeekdaysEnum) {
+    func setWeekday(_ weekday: Weekday) {
         self.weekday = weekday
-        label.text = weekday.rawValue
+        label.text = weekday.name(formatter: formatter)
     }
     
     @objc private func toggleSwitch() {

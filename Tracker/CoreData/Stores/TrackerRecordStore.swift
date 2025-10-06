@@ -7,8 +7,13 @@
 
 import CoreData
 
+protocol TrackerRecordStoreDelegate: AnyObject {
+    func didUpdateRecords()
+}
+
 final class TrackerRecordStore: NSObject {
     private let context: NSManagedObjectContext
+    weak var delegate: TrackerRecordStoreDelegate?
     
     override init() {
         let container = TrackerPersistentCoordinator.shared
@@ -61,9 +66,13 @@ final class TrackerRecordStore: NSObject {
         
         if let trackerEntity = try context.fetch(request).first {
             entity.tracker = trackerEntity
+            do {
+                try context.save()
+                delegate?.didUpdateRecords()
+            } catch {
+                print(error.localizedDescription)
+            }
         }
-        
-        try context.save()
     }
     
     func removeRecord(for trackerID: UUID, on date: Date) throws {
@@ -83,7 +92,12 @@ final class TrackerRecordStore: NSObject {
         
         if let record = try context.fetch(request).first {
             context.delete(record)
-            try context.save()
+            do {
+                try context.save()
+                delegate?.didUpdateRecords()
+            } catch {
+                print(error.localizedDescription)
+            }
         }
     }
 }

@@ -8,15 +8,15 @@
 import UIKit
 
 final class TrackerAddViewController: UIViewController {
-    private let createTrackerButton = TrackerButton(title: "Привычка")
-    private let createIrregularButton = TrackerButton(title: "Нерегулярное событие")
+    private let createTrackerButton = TrackerButton(title: L10n.habit)
+    private let createIrregularButton = TrackerButton(title: L10n.irregularHabit)
     private let stackView = UIStackView()
     
     var onTrackerAdded: ((TrackerCategory) -> Void)?
     
     override func viewDidLoad() {
         view.backgroundColor = .ybBlack
-        navigationItem.title = "Создание трекера"
+        navigationItem.title = L10n.createTracker
         
         stackView.axis = .vertical
         stackView.alignment = .fill

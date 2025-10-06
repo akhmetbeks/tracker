@@ -8,6 +8,7 @@
 import CoreData
 
 final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
+    private let formatter = DateFormatter()
     private let context: NSManagedObjectContext
     
     private lazy var controller: NSFetchedResultsController<TrackerCategoryCoreData> = {
@@ -25,7 +26,7 @@ final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
         do {
             try controller.performFetch()
         } catch {
-            print("Ошибка при инициализации NSFetchedResultsController: \(error.localizedDescription)")
+            print(L10n.errorNSFetchedResultsController(error.localizedDescription))
         }
         
         return controller
@@ -61,9 +62,9 @@ final class TrackerCategoryStore: NSObject, NSFetchedResultsControllerDelegate {
         let trackerEntity = TrackerCoreData(context: context)
         trackerEntity.uuid = tracker.id
         trackerEntity.title = tracker.title
-        trackerEntity.colorHex = tracker.hexString()
+        trackerEntity.colorLiteral = tracker.colorLiteral()
         trackerEntity.emoji = tracker.emoji
-        trackerEntity.weekdays = tracker.weekdays.map { $0.rawValue } as NSObject
+        trackerEntity.weekdays = tracker.weekdays.map { $0.name(formatter: formatter) } as NSObject
         trackerEntity.category = category
         return trackerEntity
     }

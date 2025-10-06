@@ -21,12 +21,13 @@ extension TrackerCoreData {
     func toModel() -> Tracker? {
         guard let id = self.uuid,
               let title = self.title,
-              let colorHex = self.colorHex,
+              let colorLiteral = self.colorLiteral,
+              let color = fromData(colorLiteral),
               let emoji = self.emoji else { return nil }
 
-        let color = color(from: colorHex)
-        let weekdaysRaw = self.weekdays as? [String] ?? []
-        let weekdays = weekdaysRaw.compactMap { WeekdaysEnum(rawValue: $0) }
+        
+        let weekdaysRaw = self.weekdays as? [Int] ?? []
+        let weekdays = weekdaysRaw.compactMap { Weekday(rawValue: $0) }
 
         return Tracker(
             id: id,
@@ -37,15 +38,8 @@ extension TrackerCoreData {
         )
     }
     
-    func color(from hex: String) -> UIColor {
-        var rgbValue:UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&rgbValue)
-        return UIColor(
-            red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
-            green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
-            blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
-            alpha: CGFloat(1.0)
-        )
+    func fromData(_ data: Data) -> UIColor? {
+        return try? NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: data)
     }
 }
 

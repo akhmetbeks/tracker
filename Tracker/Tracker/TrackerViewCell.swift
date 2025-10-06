@@ -49,7 +49,7 @@ final class TrackerViewCell: UICollectionViewCell {
         emojiLabel.layer.masksToBounds = true
         emojiLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        countLabel.text = "\(count) дней"
+        countLabel.text = L10n.daysCount(count)
         countLabel.font = .ypMedium
         countLabel.textColor = .text
         countLabel.translatesAutoresizingMaskIntoConstraints = false

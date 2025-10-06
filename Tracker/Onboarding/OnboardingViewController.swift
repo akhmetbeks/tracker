@@ -9,7 +9,7 @@ import UIKit
 final class OnboardingViewController: UIViewController {
     private let label = UILabel()
     private let backgroundImageView = UIImageView()
-    private let button = TrackerButton(title: "Вот это технологии!")
+    private let button = TrackerButton(title: L10n.onboardingButton)
     
     init(title: String, image: ImageResource) {
         label.text = title
@@ -29,7 +29,7 @@ final class OnboardingViewController: UIViewController {
         
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 32, weight: .bold)
-        label.textColor = .ybBlack
+        label.textColor = .black
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         

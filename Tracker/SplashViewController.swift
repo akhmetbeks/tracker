@@ -27,7 +27,11 @@ final class SplashViewController: UIViewController {
     }
     
     private func navigateToTabBarController() {
-        guard let window = UIApplication.shared.windows.first else {
+        guard
+            let windowScene = UIApplication.shared.connectedScenes
+                .first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene,
+            let window = windowScene.windows.first
+        else {
             return
         }
         
