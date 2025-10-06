@@ -40,13 +40,14 @@ final class TrackerViewController: UIViewController {
     }()
     
     private let filtersButton: UIButton = {
-          let button = UIButton(type: .system)
-          button.setTitle(L10n.filters, for: .normal)
-          button.backgroundColor = .ybBlue
-          button.setTitleColor(.white, for: .normal)
-          button.layer.cornerRadius = 16
-          button.translatesAutoresizingMaskIntoConstraints = false
-          return button
+        let button = UIButton(type: .system)
+        button.setTitle(L10n.filters, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .regular)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .ybBlue
+        button.layer.cornerRadius = 16
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
       }()
     
     init(categoryStore: TrackerCategoryStore, trackerStore: TrackerStore, recordStore: TrackerRecordStore) {

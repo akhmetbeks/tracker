@@ -151,6 +151,7 @@ extension CategoryViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         viewModel.didSelectRow(at: indexPath.row)
         onCategorySelected?(viewModel.titleForRow(at: indexPath.row))
+        dismiss(animated: true)
     }
 }
 
